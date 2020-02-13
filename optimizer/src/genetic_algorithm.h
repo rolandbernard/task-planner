@@ -17,7 +17,7 @@ enum crossover_type {
     CROSSOVER_CYCLE,
 };
 
-template<typename Callable, Callable& F, crossover_type C>
+template<typename Callable, Callable& F, crossover_type C = CROSSOVER_PMX>
 class permutation_genatic_algorithm {
 private:
     int chromosome_lenght;
@@ -101,14 +101,21 @@ private:
     }
 
     void evaluation() {
+        long worst = LONG_MAX;
         for(int i = 0; i < population_size; i++) {
             long result = F(population_a[i]);
             evaluation_results_single[i] = result;
-            evaluation_results[i] = (i == 0 ? 0 : evaluation_results[i-1]) + result;
             if(result > best_result) {
                 best_solution = population_a[i];
                 best_result = result;
             }
+            if(result < worst) {
+                worst = result;
+            }
+        }
+        evaluation_results[0] = evaluation_results_single[0] - worst + (best_result - worst)/2;
+        for(int i = 1; i < population_size; i++) {
+            evaluation_results[i] = evaluation_results[i-1] + evaluation_results_single[i] - worst + (best_result - worst)/2;
         }
     }
 

@@ -1,7 +1,7 @@
 TARGET=test
 OBJECTS=$(BUILD)/test.o
 LIBS=
-ARGS=-g -Wall -Og
+ARGS=-Wall -O3
 CLEAN=rm -f
 CPPC=g++
 SRC=./src
