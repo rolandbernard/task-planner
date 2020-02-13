@@ -1,0 +1,7 @@
+
+test
+.gdb_history
+perf.data
+perf.data.old
+build/
+

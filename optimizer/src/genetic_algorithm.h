@@ -12,8 +12,9 @@
 #include "util.h"
 
 enum crossover_type {
-    PMX,
-    ORDER1
+    CROSSOVER_PMX,
+    CROSSOVER_ORDER1,
+    CROSSOVER_CYCLE,
 };
 
 template<typename Callable, Callable& F, crossover_type C>
@@ -132,10 +133,46 @@ private:
     }
 
     void crossover(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child) {
-        if (C == ORDER1) {
+        if (C == CROSSOVER_ORDER1) {
             crossoverOrder1(parent_a, parent_b, child);
-        } else if(C == PMX) {
+        } else if(C == CROSSOVER_PMX) {
             crossoverPMX(parent_a, parent_b, child);
+        } else if(C == CROSSOVER_CYCLE) {
+            crossoverCycle(parent_a, parent_b, child);
+        }
+    }
+
+    void crossoverCycle(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child) {
+        int start = random() % chromosome_lenght;
+        int end = random() % chromosome_lenght;
+        if(start > end) {
+            int tmp = start;
+            start = end;
+            end = tmp;
+        }
+
+        bool ins[chromosome_lenght];
+        int ind[chromosome_lenght];
+        for(int i = 0; i < chromosome_lenght; i++) {
+            ins[i] = false;
+            ind[parent_b[i]] = i;
+        }
+        for(int i = 0; i < chromosome_lenght; i++) {
+            if(i%2 == 0) {
+                int index = i;
+                while(!ins[index]) {
+                    child[index] = parent_b[index];
+                    ins[index] = true;
+                    index = ind[parent_a[index]];
+                }
+            } else {
+                int index = i;
+                while(!ins[index]) {
+                    child[index] = parent_a[index];
+                    ins[index] = true;
+                    index = ind[parent_a[index]];
+                }
+            }
         }
     }
 
@@ -190,8 +227,9 @@ private:
         for(int i = start; i < end; i++) {
             if(!ins[parent_b[i]]) {
                 int index = i;
-                while(index >= start && index < end)
+                while(index >= start && index < end) {
                     index = ind[parent_a[index]];
+                }
                 child[index] = parent_b[i];
                 ins[parent_b[i]] = true;
             }

@@ -15,7 +15,7 @@ long fittness(const std::vector<int>& sol) {
 }
 
 int main() {
-    permutation_genatic_algorithm<decltype(fittness), fittness, PMX> ga(256);
+    permutation_genatic_algorithm<decltype(fittness), fittness, CROSSOVER_PMX> ga(256);
     ga.initialize();
 
     long last_best = 0;
