@@ -1,10 +1,13 @@
 
 import React from 'react';
+import { wrap } from 'comlink';
 
 import './app.css';
-import { TaskPlanner } from './task-planner';
+import Worker from 'worker-loader!./task-planning-worker';
 
-console.log(TaskPlanner);
+const planner = wrap(new Worker());
+
+console.log(planner);
 
 class App extends React.Component {
     render() {

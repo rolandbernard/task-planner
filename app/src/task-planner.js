@@ -1,7 +1,4 @@
 
-import * as Comlink from 'comlink';
-import * as optimizationWorker from './optimization-worker';
-
 import Optimizer from './optimizer';
 import { getCoordinatedForAddress } from './nominatim';
 import { getDistanceMatrix } from './osrm';
@@ -14,9 +11,6 @@ const optimizer_module = Optimizer({
         return path;
     }
 });
-
-const optimization_worker = new Worker(optimizationWorker);
-const optimization_worker_exp = Comlink.wrap(optimization_worker);
 
 function vectorToArray(vector) {
     let ret = [];
@@ -79,11 +73,11 @@ export class TaskPlanner {
         this.task_planner.setWorkers(arrayToVectorOfWorker(workers));
         this.task_planner.setClients(arrayToVectorOfClient(clients));
         this.task_planner.setDurations(arrayToVectorOfVectorOfLong(durations));
-        optimization_worker_exp.invokeInitialize(this.task_planner);
+        this.task_planner.initialize();
     }
 
     async optimize(n) {
-        optimization_worker_exp.invoceOptimize(this.task_planner, n);
+        this.task_planner.optimize(n);
     }
 
     getPlan() {
