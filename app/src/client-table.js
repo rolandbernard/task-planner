@@ -58,11 +58,11 @@ function ClientTable(props) {
             lon: undefined,
             lat: undefined,
         }]));
-    }
+    };
 
     const handleDeleteClient = (index) => {
         setClients(clients.slice(0, index).concat(clients.slice(index+1)));
-    }
+    };
 
     const handleUpdateClient = (index, changes) => {
         setClients((() => {
@@ -72,7 +72,7 @@ function ClientTable(props) {
             }
             return c;
         })());
-    }
+    };
 
     return (
         <div className={classes.root}>

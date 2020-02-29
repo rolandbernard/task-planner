@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { makeStyles, Tab, Tabs, AppBar, Box, LinearProgress } from '@material-ui/core';
 import { wrap } from 'comlink';
 
@@ -37,9 +37,9 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const planner = wrap(Worker());
 
 function App() {
+    const planner = useMemo(() => wrap(Worker()), []);
     const classes = useStyles();
     const [tab, setTab] = useState(0);
     const [clients, setClients] = useState([]);
@@ -72,7 +72,7 @@ function App() {
             <AppBar position="static">
                 <Tabs value={tab} onChange={handleTabChange}>
                     <Tab label="Input data" className={classes.tab}/>
-                    <Tab disabled={clients.length === 0 || workers.length === 0} label="Optimization" className={classes.tab}/>
+                    <Tab disabled={clients.length <= 1 || workers.length === 0} label="Optimization" className={classes.tab}/>
                 </Tabs>
             </AppBar>
             <TabPanel className={classes.tab_pannel} value={tab} index={0}>

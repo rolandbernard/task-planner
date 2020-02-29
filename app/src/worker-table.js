@@ -57,11 +57,11 @@ function WorkerTable(props) {
             lon: undefined,
             lat: undefined,
         }]));
-    }
+    };
 
     const handleDeleteWorker = (index) => {
         setWorkers(workers.slice(0, index).concat(workers.slice(index+1)));
-    }
+    };
 
     const handleUpdateWorker = (index, changes) => {
         setWorkers((() => {
@@ -71,7 +71,7 @@ function WorkerTable(props) {
             }
             return w;
         })());
-    }
+    };
 
     return (
         <div className={classes.root}>
