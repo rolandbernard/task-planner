@@ -2,7 +2,7 @@ OBJECTS=$(BUILD)/optimizer.o $(BUILD)/util.o $(BUILD)/mutation.o $(BUILD)/crosso
 LIBS=
 ARGS=-Wall -std=c++17 -Os
 DEBUGARGS=-Wall -std=c++17 -O0 -g -fsanitize=address,undefined
-WASMARGS=--bind -s MODULARIZE=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_NAME="Optimizer" -s ENVIRONMENT=web -s DISABLE_EXCEPTION_CATCHING=0 #-s FILESYSTEM=0
+WASMARGS=--bind -s MODULARIZE=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_NAME=Optimizer -s ENVIRONMENT=web,worker -s FILESYSTEM=0
 CLEAN=rm -f
 CPPC=emcc
 SRC=./src
