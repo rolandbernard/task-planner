@@ -8,6 +8,10 @@ CPPC=emcc
 SRC=./src
 BUILD=./build
 
+build:
+	mkdir -p $(BUILD)
+	make $(BUILD)/optimizer.js
+
 $(BUILD)/optimizer.js: $(OBJECTS)
 	$(CPPC) $(ARGS) $(WASMARGS) $(OBJECTS) $(LIBS) -o $(BUILD)/optimizer.js
 	sed -i '1s;^;/* eslint-disable */\n;' $(BUILD)/optimizer.js
