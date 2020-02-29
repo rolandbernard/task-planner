@@ -15,7 +15,7 @@
 double TaskPlanner::fittness(const std::vector<int>& sol, void* user_data) {
     TaskPlanner* planner = (TaskPlanner*)user_data;
     int worker_count = planner->workers.size();
-    long loss = 0;
+    long loss = 1;
     int current_worker = 0;
     int current_position = 0;
     int current_day = 0;
