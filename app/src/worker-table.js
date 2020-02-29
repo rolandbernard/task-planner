@@ -4,6 +4,8 @@ import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, 
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+import AddressInput from './address-input';
+
 const useStyles = makeStyles(({
     root: {
         position: 'relative',
@@ -61,10 +63,12 @@ function WorkerTable(props) {
         setWorkers(workers.slice(0, index).concat(workers.slice(index+1)));
     }
 
-    const handleUpdateWorker = (index, field, value) => {
+    const handleUpdateWorker = (index, changes) => {
         setWorkers((() => {
             const w = workers.slice();
-            w[index][field] = value;
+            for(let field in changes) {
+                w[index][field] = changes[field];
+            }
             return w;
         })());
     }
@@ -93,10 +97,14 @@ function WorkerTable(props) {
                                         {workers.map((worker, index) => (
                                             <TableRow key={index}>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField className={classes.input} value={worker.name} onChange={(e) => handleUpdateWorker(index, 'name', e.target.value)}/>
+                                                    <TextField className={classes.input} value={worker.name} onChange={(e) => handleUpdateWorker(index, {'name': e.target.value})}/>
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField className={classes.input} value={worker.address} onChange={(e) => handleUpdateWorker(index, 'address', e.target.value)}/>
+                                                    <AddressInput
+                                                        className={classes.input}
+                                                        value={worker.address}
+                                                        onChange={(e) => handleUpdateWorker(index, {'address': e.target.value, 'lon': e.lon, 'lat': e.lat})}
+                                                    />
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
                                                     <TextField
@@ -105,7 +113,7 @@ function WorkerTable(props) {
                                                         value={worker.maximum_time}
                                                         inputProps={{min: 0,}}
                                                         InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
-                                                        onChange={(e) => handleUpdateWorker(index, 'maximum_time', e.target.value)}
+                                                        onChange={(e) => handleUpdateWorker(index, {'maximum_time': e.target.value})}
                                                     />
                                                 </TableCell>
                                                 <TableCell className={classes.table_last_cell}>

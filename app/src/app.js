@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { makeStyles, Tab, Tabs, AppBar, Box } from '@material-ui/core';
+import { makeStyles, Tab, Tabs, AppBar, Box, LinearProgress } from '@material-ui/core';
 import { wrap } from 'comlink';
 
 import TabPanel from './tab-panel'
@@ -37,12 +37,14 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+const planner = wrap(Worker());
+
 function App() {
-    const planner = wrap(Worker());
     const classes = useStyles();
     const [tab, setTab] = useState(0);
     const [clients, setClients] = useState([]);
     const [workers, setWorkers] = useState([]);
+    const [initialized, setInitialized] = useState(false);
 
     const handleClientChange = (c) => {
         setClients(c);
@@ -52,8 +54,17 @@ function App() {
         setWorkers(w);
     };
 
-    const handleTabChange = (__, new_tab) => {
+    const handleTabChange = async (__, new_tab) => {
+        setInitialized(false);
         setTab(new_tab);
+        if(new_tab === 1) {
+            try {
+                await await planner.setWorkersAndClients(workers, clients);
+                setInitialized(true);
+            } catch(e) {
+                setTab(0);
+            }
+        }
     };
 
     return (
@@ -61,7 +72,7 @@ function App() {
             <AppBar position="static">
                 <Tabs value={tab} onChange={handleTabChange}>
                     <Tab label="Input data" className={classes.tab}/>
-                    <Tab label="Optimization" className={classes.tab}/>
+                    <Tab disabled={clients.length === 0 || workers.length === 0} label="Optimization" className={classes.tab}/>
                 </Tabs>
             </AppBar>
             <TabPanel className={classes.tab_pannel} value={tab} index={0}>
@@ -73,7 +84,7 @@ function App() {
                 </Box>
             </TabPanel>
             <TabPanel className={classes.tab_pannel} value={tab} index={1}>
-                Item Two
+                {initialized ? (<div/>) : (<LinearProgress color="secondary"/>)}
             </TabPanel>
         </div>
     )

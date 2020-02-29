@@ -4,6 +4,8 @@ import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, 
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+import AddressInput from './address-input';
+
 const useStyles = makeStyles(({
     root: {
         position: 'relative',
@@ -62,10 +64,12 @@ function ClientTable(props) {
         setClients(clients.slice(0, index).concat(clients.slice(index+1)));
     }
 
-    const handleUpdateClient = (index, field, value) => {
+    const handleUpdateClient = (index, changes) => {
         setClients((() => {
             const c = clients.slice();
-            c[index][field] = value;
+            for(let field in changes) {
+                c[index][field] = changes[field];
+            }
             return c;
         })());
     }
@@ -95,10 +99,14 @@ function ClientTable(props) {
                                         {clients.map((client, index) => (
                                             <TableRow key={index}>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField className={classes.input} value={client.name} onChange={(e) => handleUpdateClient(index, 'name', e.target.value)}/>
+                                                    <TextField className={classes.input} value={client.name} onChange={(e) => handleUpdateClient(index, {'name': e.target.value})}/>
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField className={classes.input} value={client.address} onChange={(e) => handleUpdateClient(index, 'address', e.target.value)}/>
+                                                    <AddressInput
+                                                        className={classes.input}
+                                                        value={client.address}
+                                                        onChange={(e) => handleUpdateClient(index, {'address': e.target.value, 'lon': e.lon, 'lat': e.lat})}
+                                                    />
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
                                                     <TextField
@@ -111,7 +119,7 @@ function ClientTable(props) {
                                                     />
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
-                                                    <Select className={classes.input} value={client.priority} onChange={(e) => handleUpdateClient(index, 'priority', e.target.value)}>
+                                                    <Select className={classes.input} value={client.priority} onChange={(e) => handleUpdateClient(index, {'priority': e.target.value})}>
                                                         <MenuItem value={0.2}>Low</MenuItem>
                                                         <MenuItem value={0.5}>Medium</MenuItem>
                                                         <MenuItem value={2}>High</MenuItem>
