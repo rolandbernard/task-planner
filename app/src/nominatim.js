@@ -1,9 +1,9 @@
 
-const nominatimApiLocation = 'https://nominatim.openstreetmap.org';
+import config from './config';
 
 export async function getCoordinatedForAddress(address) {
     try {
-        const result = await fetch(nominatimApiLocation + `/search?q=${address}&format=json&limit=1`);
+        const result = await fetch(config.nominatimApiLocation + `/search?q=${address}&format=json&limit=1`);
         if(result.status !== 200) {
             throw new Error(`Code ${result.status}`);
         } else {

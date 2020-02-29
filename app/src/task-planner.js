@@ -3,12 +3,18 @@ import Optimizer from './optimizer';
 import { getCoordinatedForAddress } from './nominatim';
 import { getDistanceMatrix } from './osrm';
 
+let module_initialized = false;
+let optimizer_callbacks = [];
 const optimizer_module = Optimizer({
     locateFile(path) {
         if(path.endsWith('.wasm')) {
             return process.env.PUBLIC_URL + "/optimizer.wasm";
         }
         return path;
+    },
+    onRuntimeInitialized: () => {
+        module_initialized = true;
+        optimizer_callbacks.forEach(fn => fn());
     }
 });
 
@@ -50,7 +56,13 @@ function arrayToVectorOfVectorOfLong(array) {
 
 export class TaskPlanner {
     constructor() {
-        this.task_planner = new optimizer_module.TaskPlanner();
+        if(module_initialized) {
+            this.task_planner = new optimizer_module.TaskPlanner();
+        } else {
+            optimizer_callbacks.push(() => {
+                this.task_planner = new optimizer_module.TaskPlanner();
+            });
+        }
     }
 
     async setWorkersAndClients(workers, clients) {
