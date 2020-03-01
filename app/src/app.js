@@ -7,6 +7,7 @@ import TabPanel from './tab-panel'
 import Worker from './task-planner.worker'
 import ClientTable from './client-table';
 import WorkerTable from './worker-table';
+import PlanMap from './plan-map';
 
 const useStyles = makeStyles(theme => ({
     app: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles(theme => ({
         width: '45%',
     },
     tab_pannel: {
-        height: 'calc(100% - 3.5em)',
+        height: 'calc(100% - 3em)',
     },
     boxes: {
         [theme.breakpoints.down('md')]: {
@@ -44,7 +45,9 @@ function App() {
     const [tab, setTab] = useState(0);
     const [clients, setClients] = useState([]);
     const [workers, setWorkers] = useState([]);
-    const [initialized, setInitialized] = useState(false);
+    const [plan, setPlan] = useState([]);
+    const [planSplit, setPlanSplit] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const handleClientChange = (c) => {
         setClients(c);
@@ -55,12 +58,14 @@ function App() {
     };
 
     const handleTabChange = async (__, new_tab) => {
-        setInitialized(false);
+        setLoading(true);
         setTab(new_tab);
         if(new_tab === 1) {
             try {
                 await await planner.setWorkersAndClients(workers, clients);
-                setInitialized(true);
+                setPlan(await planner.getPlan());
+                setPlanSplit(await planner.getPlanPerWorkerPerDay());
+                setLoading(false);
             } catch(e) {
                 setTab(0);
             }
@@ -84,7 +89,8 @@ function App() {
                 </Box>
             </TabPanel>
             <TabPanel className={classes.tab_pannel} value={tab} index={1}>
-                {initialized ? (<div/>) : (<LinearProgress color="secondary"/>)}
+                {loading ? (<LinearProgress color="secondary"/>) : (<div/>)}
+                <PlanMap plan={planSplit}/>
             </TabPanel>
         </div>
     )
