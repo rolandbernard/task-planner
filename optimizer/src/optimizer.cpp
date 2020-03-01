@@ -39,6 +39,7 @@ EMSCRIPTEN_BINDINGS(Bindings) {
         .function("setDurations", &TaskPlanner::setDurations)
         .function("initialize", &TaskPlanner::initialize)
         .function("getPlan", &TaskPlanner::getPlan)
+        .function("getPlanQuality", &TaskPlanner::getPlanQuality)
         .function("getPlanPerWorkerPerDay", &TaskPlanner::getPlanPerWorkerPerDay)
         .function("optimize", &TaskPlanner::optimize);
 }

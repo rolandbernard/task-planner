@@ -8,7 +8,7 @@ CPPC=emcc
 SRC=./src
 BUILD=./build
 
-build:
+all:
 	mkdir -p $(BUILD)
 	make $(BUILD)/optimizer.js
 
