@@ -25,8 +25,8 @@ const styles = {
     }),
     'routeHighlight': new Style({
         stroke: new Stroke({
-            color: [120, 120, 200, 1],
-            width: 9,
+            color: [120, 120, 255, 1],
+            width: 10,
         })
     }),
     'routeShadow': new Style({

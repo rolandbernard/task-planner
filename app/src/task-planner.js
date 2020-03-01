@@ -88,8 +88,12 @@ export class TaskPlanner {
         this.task_planner.initialize();
     }
 
-    async optimize(n) {
+    optimize(n) {
         this.task_planner.optimize(n);
+    }
+
+    getPlanQuality() {
+        return this.task_planner.getPlanQuality();
     }
 
     getPlan() {
