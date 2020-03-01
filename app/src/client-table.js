@@ -1,8 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, IconButton, Select, MenuItem, TextField, InputAdornment } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import PublishIcon from '@material-ui/icons/Publish';
+import { SpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab';
+import { saveAs } from 'file-saver';
 
 import AddressInput from './address-input';
 
@@ -30,11 +34,22 @@ const useStyles = makeStyles(({
         padding: 0,
     },
     table_last_cell: {
-        width: 'min-content',
+        width: '48px',
+        height: '48px',
         padding: 0,
+        position: 'relative',
     },
     input: {
         width: '90%',
+    },
+    speed_dial: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '48px',
+    },
+    file_input: {
+        display: 'none',
     },
 }));
 
@@ -42,6 +57,8 @@ function ClientTable(props) {
     const classes = useStyles();
     const { onClientChange } = props;
     const [clients, setClients] = useState([]);
+    const [speedDialOpen, setSpeedDialOpen] = useState(false);
+    const file_input_ref = createRef();
 
     useEffect(() => {
         if(onClientChange) {
@@ -60,6 +77,14 @@ function ClientTable(props) {
         }]));
     };
 
+    const handleSpeedDialClose = () => {
+        setSpeedDialOpen(false);
+    };
+
+    const handleSpeedDialOpen = () => {
+        setSpeedDialOpen(true);
+    };
+
     const handleDeleteClient = (index) => {
         setClients(clients.slice(0, index).concat(clients.slice(index+1)));
     };
@@ -74,6 +99,33 @@ function ClientTable(props) {
         })());
     };
 
+    const handleFileImport = () => {
+        const file = file_input_ref.current.files[0];
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            try {
+                const csv = reader.result;
+                setClients(clients.concat(csv.split('\n').filter(csvline => csvline.split(';').length === 4).map(csvline => {
+                    const fields = csvline.split(';');
+                    const client = {
+                        name: fields[0],
+                        address: fields[1],
+                        working_time: parseInt(fields[2]),
+                        priority: parseFloat(fields[3]),
+                    };
+                    return client;
+                })));
+            } catch(e) { }
+        });
+        reader.readAsText(file);
+    }
+
+    const handleFileExport = () => {
+        const csv = clients.map(client => (client.name + ';' + client.address + ';' + client.working_time + ';' + client.priority)).join('\n');
+        const blob = new Blob([csv], {type: 'text/csv'});
+        saveAs(blob, 'clients-export.csv');
+    }
+
     return (
         <div className={classes.root}>
             <Table className={classes.table}>
@@ -84,9 +136,33 @@ function ClientTable(props) {
                         <TableCell className={classes.table_cell}>Estimated duration</TableCell>
                         <TableCell className={classes.table_cell}>Priority</TableCell>
                         <TableCell className={classes.table_last_cell}>
-                            <Tooltip title="Add client">
-                                <IconButton onClick={handleAddClient}><AddIcon/></IconButton>
-                            </Tooltip>
+                            <input className={classes.file_input} type="file" accept="text/csv" ref={file_input_ref} onChange={handleFileImport}/>
+                            <SpeedDial
+                                ariaLabel="SpeedDial"
+                                className={classes.speed_dial}
+                                icon={<SpeedDialIcon />}
+                                onClose={handleSpeedDialClose}
+                                onOpen={handleSpeedDialOpen}
+                                open={speedDialOpen}
+                                direction="down"
+                                FabProps={{size: 'small', color: 'default'}}
+                            >
+                                <SpeedDialAction
+                                    icon={(<AddIcon/>)}
+                                    tooltipTitle="Add a client"
+                                    onClick={handleAddClient}
+                                />
+                                <SpeedDialAction
+                                    icon={(<PublishIcon/>)}
+                                    tooltipTitle="Import csv"
+                                    onClick={() => {file_input_ref.current.click()}}
+                                />
+                                <SpeedDialAction
+                                    icon={(<GetAppIcon/>)}
+                                    tooltipTitle="Export csv"
+                                    onClick={handleFileExport}
+                                />
+                            </SpeedDial>
                         </TableCell>
                     </TableRow>
                 </TableHead>
@@ -115,14 +191,14 @@ function ClientTable(props) {
                                                         value={client.working_time}
                                                         inputProps={{min: 0,}}
                                                         InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
-                                                        onChange={(e) => handleUpdateClient(index, 'working_time', e.target.value)}
+                                                        onChange={(e) => handleUpdateClient(index, {'working_time': e.target.value ? parseInt(e.target.value) : ''})}
                                                     />
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
                                                     <Select className={classes.input} value={client.priority} onChange={(e) => handleUpdateClient(index, {'priority': e.target.value})}>
                                                         <MenuItem value={0.2}>Low</MenuItem>
                                                         <MenuItem value={0.5}>Medium</MenuItem>
-                                                        <MenuItem value={2}>High</MenuItem>
+                                                        <MenuItem value={1}>High</MenuItem>
                                                     </Select>
                                                 </TableCell>
                                                 <TableCell className={classes.table_last_cell}>
