@@ -126,6 +126,10 @@ function ClientTable(props) {
         saveAs(blob, 'clients-export.csv');
     }
 
+    const handleDeleteAll = () => {
+        setClients([]);
+    }
+
     return (
         <div className={classes.root}>
             <Table className={classes.table}>
@@ -161,6 +165,11 @@ function ClientTable(props) {
                                     icon={(<GetAppIcon/>)}
                                     tooltipTitle="Export csv"
                                     onClick={handleFileExport}
+                                />
+                                <SpeedDialAction
+                                    icon={(<DeleteIcon/>)}
+                                    tooltipTitle="Delete all clients"
+                                    onClick={handleDeleteAll}
                                 />
                             </SpeedDial>
                         </TableCell>

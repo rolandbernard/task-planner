@@ -124,6 +124,10 @@ function WorkerTable(props) {
         saveAs(blob, 'workers-export.csv');
     }
 
+    const handleDeleteAll = () => {
+        setWorkers([]);
+    }
+
     return (
         <div className={classes.root}>
             <Table className={classes.table}>
@@ -158,6 +162,11 @@ function WorkerTable(props) {
                                     icon={(<GetAppIcon/>)}
                                     tooltipTitle="Export csv"
                                     onClick={handleFileExport}
+                                />
+                                <SpeedDialAction
+                                    icon={(<DeleteIcon/>)}
+                                    tooltipTitle="Delete all workers"
+                                    onClick={handleDeleteAll}
                                 />
                             </SpeedDial>
                         </TableCell>
