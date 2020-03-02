@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select, MenuItem } from '@material-ui/core';
+import { makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select, MenuItem, Popper, Paper, Grow, ButtonGroup, MenuList, ClickAwayListener } from '@material-ui/core';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { wrap } from 'comlink';
 
 import TabPanel from './tab-panel'
@@ -76,6 +77,9 @@ const useStyles = makeStyles(theme => ({
         verticalAlign: 'middle',
         marginLeft: '1em',
     },
+    popper: {
+        zIndex: 100000,
+    }
 }));
 
 
@@ -92,6 +96,9 @@ function App() {
     const [filter_worker, setFilterWorker] = useState(-1);
     const [filter_day, setFilterDay] = useState(-1);
     const changed = useRef(true);
+    const button_anchor_ref = useRef(null);
+    const [button_open, setButtonOpen] = useState(false);
+    const [rounds, setRounds] = useState(500);
 
     const handleClientChange = (c) => {
         setClients(c);
@@ -126,7 +133,7 @@ function App() {
 
     const handleOptimize = async () => {
         setLoading(true);
-        await planner.optimize(500);
+        await planner.optimize(rounds);
         setFilterWorker(-1);
         setFilterDay(-1);
         setQuality(await planner.getPlanQuality());
@@ -149,6 +156,19 @@ function App() {
             .map(worker => worker.filter((__, index) => (filter_day === -1 || filter_day === index)));
     }, [filter_worker, filter_day, plan_split]);
 
+    const handleButtonToggle = () => {
+        setButtonOpen(!button_open);
+    };
+
+    const handleButtonClose = () => {
+        setButtonOpen(false);
+    };
+
+    const handleButtonClick = (r) => {
+        setRounds(r);
+        setButtonOpen(false);
+    };
+
     return (
         <div className={classes.app}>
             <AppBar position="static">
@@ -169,7 +189,45 @@ function App() {
                 <Box className={classes.boxes}>
                     <Box className={classes.control_box}>
                         <span className={classes.button_wrapper}>
-                            <Button disabled={loading} className={classes.button} variant="contained" color="primary" onClick={handleOptimize}>Optimize</Button>
+                            <ButtonGroup disabled={loading} variant="contained" color="primary" ref={button_anchor_ref}>
+                                <Button className={classes.button} onClick={handleOptimize}>Optimize {rounds}</Button>
+                                <Button
+                                    color="primary"
+                                    size="small"
+                                    aria-controls={button_open ? 'split-button-menu' : undefined}
+                                    aria-expanded={button_open ? 'true' : undefined}
+                                    aria-haspopup="menu"
+                                    onClick={handleButtonToggle}
+                                >
+                                    <ArrowDropDownIcon />
+                                </Button>
+                            </ButtonGroup>
+                            <Popper className={classes.popper} open={button_open} anchorEl={button_anchor_ref.current} placement="bottom" role={undefined} transition disablePortal>
+                                {({ TransitionProps, placement }) => (
+                                    <Grow
+                                        {...TransitionProps}
+                                        style={{
+                                            transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
+                                        }}
+                                    >
+                                        <Paper>
+                                            <ClickAwayListener onClickAway={handleButtonClose}>
+                                                <MenuList id="split-button-menu">
+                                                    {[500, 5000, 10000, 50000, 100000, 500000].map(r => (
+                                                        <MenuItem
+                                                            key={r}
+                                                            selected={rounds === r}
+                                                            onClick={() => handleButtonClick(r)}
+                                                        >
+                                                            Optimize {r}
+                                                        </MenuItem>
+                                                    ))}
+                                                </MenuList>
+                                            </ClickAwayListener>
+                                        </Paper>
+                                    </Grow>
+                                )}
+                            </Popper>
                             {loading && <CircularProgress size={24} className={classes.button_progress} />}
                         </span>
                         <span className={classes.quality}>
@@ -193,7 +251,7 @@ function App() {
                                 onChange={handleFilterDayChange}
                             >
                                 <MenuItem value={-1}><em>None</em></MenuItem>
-                                {(filter_worker !== -1) && plan_split[filter_worker].map((day, index) => (<MenuItem key={index} value={index}>{'Day ' + (index+1)}</MenuItem>))}
+                                {(filter_worker !== -1) && plan_split[filter_worker].map((__, index) => (<MenuItem key={index} value={index}>{'Day ' + (index+1)}</MenuItem>))}
                             </Select>
                         </span>
                     </Box>
