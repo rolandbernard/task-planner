@@ -3,6 +3,8 @@ import React, { useState, useEffect, createRef } from 'react';
 import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, IconButton, TextField, InputAdornment } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import DoneIcon from '@material-ui/icons/Done';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import PublishIcon from '@material-ui/icons/Publish';
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab';
@@ -34,7 +36,7 @@ const useStyles = makeStyles(({
         padding: 0,
     },
     table_last_cell: {
-        width: '48px',
+        width: '96px',
         height: '48px',
         padding: 0,
         position: 'relative',
@@ -45,11 +47,24 @@ const useStyles = makeStyles(({
     speed_dial: {
         position: 'absolute',
         top: 0,
-        left: 0,
+        left: 'calc(50% - 24px)',
         width: '48px',
     },
     file_input: {
         display: 'none',
+    },
+    span: {
+        overflowX: 'hidden',
+        textOverflow: 'ellipsis',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        verticalAlign: 'middle',
+        width: '90%',
+        height: 'min-content',
+        fontSize: '1rem',
+    },
+    span_grey: {
+        color: '#757575',
     },
 }));
 
@@ -58,6 +73,7 @@ function WorkerTable(props) {
     const { onWorkerChange } = props;
     const [workers, setWorkers] = useState([]);
     const [speedDialOpen, setSpeedDialOpen] = useState(false);
+    const [editable, setEditable] = useState(-1);
     const file_input_ref = createRef();
 
     useEffect(() => {
@@ -67,6 +83,7 @@ function WorkerTable(props) {
     });
 
     const handleAddWorker = () => {
+        setEditable(workers.length);
         setWorkers(workers.concat([{
             name: "",
             address: "",
@@ -85,6 +102,7 @@ function WorkerTable(props) {
     };
 
     const handleDeleteWorker = (index) => {
+        setEditable(-1);
         setWorkers(workers.slice(0, index).concat(workers.slice(index+1)));
     };
 
@@ -98,7 +116,12 @@ function WorkerTable(props) {
         })());
     };
 
+    const handleEditWorker = (index) => {
+        setEditable(editable !== index ? index : -1);
+    }
+
     const handleFileImport = () => {
+        setEditable(-1);
         const file = file_input_ref.current.files[0];
         const reader = new FileReader();
         reader.addEventListener('load', () => {
@@ -119,12 +142,14 @@ function WorkerTable(props) {
     }
 
     const handleFileExport = () => {
+        setEditable(-1);
         const csv = workers.map(worker => (worker.name + ';' + worker.address + ';' + worker.maximum_time)).join('\n');
         const blob = new Blob([csv], {type: 'text/csv'});
         saveAs(blob, 'workers-export.csv');
     }
 
     const handleDeleteAll = () => {
+        setEditable(-1);
         setWorkers([]);
     }
 
@@ -181,26 +206,36 @@ function WorkerTable(props) {
                                         {workers.map((worker, index) => (
                                             <TableRow key={index}>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField className={classes.input} value={worker.name} onChange={(e) => handleUpdateWorker(index, {'name': e.target.value})}/>
+                                                    {index === editable ?
+                                                        <TextField className={classes.input} value={worker.name} onChange={(e) => handleUpdateWorker(index, {'name': e.target.value})}/> :
+                                                        <span className={classes.span}>{worker.name}</span>
+                                                    }
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
                                                     <AddressInput
+                                                        editable={index === editable}
                                                         className={classes.input}
                                                         value={worker.address}
                                                         onChange={(e) => handleUpdateWorker(index, {'address': e.target.value, 'lon': e.lon, 'lat': e.lat})}
                                                     />
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField
-                                                        className={classes.input}
-                                                        type="number"
-                                                        value={worker.maximum_time}
-                                                        inputProps={{min: 0,}}
-                                                        InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
-                                                        onChange={(e) => handleUpdateWorker(index, {'maximum_time': e.target.value ? parseInt(e.target.value) : ''})}
-                                                    />
+                                                    {index === editable ?
+                                                        <TextField
+                                                            className={classes.input}
+                                                            type="number"
+                                                            value={worker.maximum_time}
+                                                            inputProps={{min: 0,}}
+                                                            InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
+                                                            onChange={(e) => handleUpdateWorker(index, {'maximum_time': e.target.value ? parseInt(e.target.value) : ''})}
+                                                        /> :
+                                                        <span className={classes.span}><span className={classes.span_grey}>Min.</span>&nbsp;&nbsp;{worker.maximum_time}</span>
+                                                    }
                                                 </TableCell>
                                                 <TableCell className={classes.table_last_cell}>
+                                                    <Tooltip title={index === editable ? 'Save' : 'Edit worker'}>
+                                                        <IconButton onClick={() => handleEditWorker(index)}>{index === editable ? <DoneIcon/> : <EditIcon/>}</IconButton>
+                                                    </Tooltip>
                                                     <Tooltip title="Delete worker">
                                                         <IconButton onClick={() => handleDeleteWorker(index)}><DeleteIcon/></IconButton>
                                                     </Tooltip>

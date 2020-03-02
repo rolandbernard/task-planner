@@ -3,6 +3,8 @@ import React, { useState, useEffect, createRef } from 'react';
 import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, IconButton, Select, MenuItem, TextField, InputAdornment } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import DoneIcon from '@material-ui/icons/Done';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import PublishIcon from '@material-ui/icons/Publish';
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab';
@@ -34,7 +36,7 @@ const useStyles = makeStyles(({
         padding: 0,
     },
     table_last_cell: {
-        width: '48px',
+        width: '96px',
         height: '48px',
         padding: 0,
         position: 'relative',
@@ -45,11 +47,24 @@ const useStyles = makeStyles(({
     speed_dial: {
         position: 'absolute',
         top: 0,
-        left: 0,
+        left: 'calc(50% - 24px)',
         width: '48px',
     },
     file_input: {
         display: 'none',
+    },
+    span: {
+        overflowX: 'hidden',
+        textOverflow: 'ellipsis',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        verticalAlign: 'middle',
+        width: '90%',
+        height: 'min-content',
+        fontSize: '1rem',
+    },
+    span_grey: {
+        color: '#757575',
     },
 }));
 
@@ -58,6 +73,7 @@ function ClientTable(props) {
     const { onClientChange } = props;
     const [clients, setClients] = useState([]);
     const [speedDialOpen, setSpeedDialOpen] = useState(false);
+    const [editable, setEditable] = useState(-1);
     const file_input_ref = createRef();
 
     useEffect(() => {
@@ -67,6 +83,7 @@ function ClientTable(props) {
     });
 
     const handleAddClient = () => {
+        setEditable(clients.length);
         setClients(clients.concat([{
             name: "",
             address: "",
@@ -86,6 +103,7 @@ function ClientTable(props) {
     };
 
     const handleDeleteClient = (index) => {
+        setEditable(-1);
         setClients(clients.slice(0, index).concat(clients.slice(index+1)));
     };
 
@@ -99,7 +117,12 @@ function ClientTable(props) {
         })());
     };
 
+    const handleEditClient = (index) => {
+        setEditable(editable !== index ? index : -1);
+    }
+
     const handleFileImport = () => {
+        setEditable(-1);
         const file = file_input_ref.current.files[0];
         const reader = new FileReader();
         reader.addEventListener('load', () => {
@@ -121,12 +144,14 @@ function ClientTable(props) {
     }
 
     const handleFileExport = () => {
+        setEditable(-1);
         const csv = clients.map(client => (client.name + ';' + client.address + ';' + client.working_time + ';' + client.priority)).join('\n');
         const blob = new Blob([csv], {type: 'text/csv'});
         saveAs(blob, 'clients-export.csv');
     }
 
     const handleDeleteAll = () => {
+        setEditable(-1);
         setClients([]);
     }
 
@@ -184,33 +209,46 @@ function ClientTable(props) {
                                         {clients.map((client, index) => (
                                             <TableRow key={index}>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField className={classes.input} value={client.name} onChange={(e) => handleUpdateClient(index, {'name': e.target.value})}/>
+                                                    {index === editable ?
+                                                        <TextField className={classes.input} value={client.name} onChange={(e) => handleUpdateClient(index, {'name': e.target.value})}/> :
+                                                        <span className={classes.span}>{client.name}</span>
+                                                    }
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
                                                     <AddressInput
+                                                        editable={index === editable}
                                                         className={classes.input}
                                                         value={client.address}
                                                         onChange={(e) => handleUpdateClient(index, {'address': e.target.value, 'lon': e.lon, 'lat': e.lat})}
                                                     />
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
-                                                    <TextField
-                                                        className={classes.input}
-                                                        type="number"
-                                                        value={client.working_time}
-                                                        inputProps={{min: 0,}}
-                                                        InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
-                                                        onChange={(e) => handleUpdateClient(index, {'working_time': e.target.value ? parseInt(e.target.value) : ''})}
-                                                    />
+                                                    {index === editable ?
+                                                        <TextField
+                                                            className={classes.input}
+                                                            type="number"
+                                                            value={client.working_time}
+                                                            inputProps={{min: 0,}}
+                                                            InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
+                                                            onChange={(e) => handleUpdateClient(index, {'working_time': e.target.value ? parseInt(e.target.value) : ''})}
+                                                        /> :
+                                                        <span className={classes.span}><span className={classes.span_grey}>Min.</span>&nbsp;&nbsp;{client.working_time}</span>
+                                                    }
                                                 </TableCell>
                                                 <TableCell className={classes.table_cell}>
-                                                    <Select className={classes.input} value={client.priority} onChange={(e) => handleUpdateClient(index, {'priority': e.target.value})}>
-                                                        <MenuItem value={0.2}>Low</MenuItem>
-                                                        <MenuItem value={0.5}>Medium</MenuItem>
-                                                        <MenuItem value={1}>High</MenuItem>
-                                                    </Select>
+                                                    {index === editable ?
+                                                        <Select className={classes.input} value={client.priority} onChange={(e) => handleUpdateClient(index, {'priority': e.target.value})}>
+                                                            <MenuItem value={0.2}>Low</MenuItem>
+                                                            <MenuItem value={0.5}>Medium</MenuItem>
+                                                            <MenuItem value={1}>High</MenuItem>
+                                                        </Select> :
+                                                        <span className={classes.span}>{client.priority === 0.2 ? 'Low' : client.priority === 0.5 ? 'Medium' : 'High'}</span>
+                                                    }
                                                 </TableCell>
                                                 <TableCell className={classes.table_last_cell}>
+                                                    <Tooltip title={index === editable ? 'Save' : 'Edit client'}>
+                                                        <IconButton onClick={() => handleEditClient(index)}>{index === editable ? <DoneIcon/> : <EditIcon/>}</IconButton>
+                                                    </Tooltip>
                                                     <Tooltip title="Delete client">
                                                         <IconButton onClick={() => handleDeleteClient(index)}><DeleteIcon/></IconButton>
                                                     </Tooltip>

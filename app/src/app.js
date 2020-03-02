@@ -231,7 +231,7 @@ function App() {
                             {loading && <CircularProgress size={24} className={classes.button_progress} />}
                         </span>
                         <span className={classes.quality}>
-                            Quality: {quality}
+                            Quality: {Number.parseFloat(quality).toPrecision(5)}
                         </span>
                         <span className={classes.filters}>
                             Filter:
