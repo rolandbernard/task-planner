@@ -39,42 +39,38 @@ function toPaddedIntString(num) {
     }
 }
 
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map(el => el[0]);
-}
-
 function ClientTable(props) {
     const classes = useStyles();
     const { plan } = props;
-    const [order_by, setOrderBy] = useState('');
-    const [order, setOrder] = useState('asc');
+    const [order_by, setOrderBy] = useState([]);
 
     const createSortHandler = property => () => {
-        if(order_by !== property) {
-            setOrderBy(property);
-            setOrder('asc');
+        if(!(order_by[0]) || order_by[0].prop !== property) {
+            setOrderBy([{prop: property, order: 'asc'}, ...order_by.filter(el => el.prop !== property)]);
         } else {
-            setOrder(order === 'asc' ? 'desc' : 'asc');
+            setOrderBy(order_by.map((el, index) => index === 0 ? {prop: el.prop, order: (el.order === 'asc' ? 'desc' : 'asc')} : el));
         }
     };
 
     const sortedPlan = useMemo(() => (
-        stableSort(plan, (a, b) => {
-            if(a[order_by] === b[order_by]) {
-                return 0;
-            } else if(a[order_by] < b[order_by]) {
-                return order === 'asc' ? -1 : 1;
-            } else {
-                return order === 'asc' ? 1 : -1;
+        plan.map(({worker, client, day, time_of_day}) => ({
+            worker: worker,
+            client: client,
+            day: day,
+            time_of_day: time_of_day,
+            worker_name: worker.name,
+            client_name: client.name,
+        })).sort((a, b) => {
+            for(let {prop, order} of order_by) {
+                if(a[prop] < b[prop]) {
+                    return order === 'asc' ? -1 : 1;
+                }else if(a[prop] > b[prop]) {
+                    return order === 'asc' ? 1 : -1;
+                }
             }
+            return 0;
         })
-    ), [plan, order, order_by]);
+    ), [plan, order_by]);
 
     return (
         <div className={classes.root}>
@@ -83,26 +79,26 @@ function ClientTable(props) {
                     <TableRow>
                         <TableCell>
                             <TableSortLabel
-                                active={order_by === 'worker'}
-                                direction={order_by === 'worker' ? order : 'asc'}
-                                onClick={createSortHandler('worker')}
+                                active={order_by[0] && order_by[0].prop === 'worker_name'}
+                                direction={order_by[0] && order_by[0].prop === 'worker_name' ? order_by[0].order : 'asc'}
+                                onClick={createSortHandler('worker_name')}
                             >
                                 Worker
                             </TableSortLabel>
                         </TableCell>
                         <TableCell>
                             <TableSortLabel
-                                active={order_by === 'client'}
-                                direction={order_by === 'client' ? order : 'asc'}
-                                onClick={createSortHandler('client')}
+                                active={order_by[0] && order_by[0].prop === 'client_name'}
+                                direction={order_by[0] && order_by[0].prop === 'client_name' ? order_by[0].order : 'asc'}
+                                onClick={createSortHandler('client_name')}
                             >
                                 Client
                             </TableSortLabel>
                         </TableCell>
                         <TableCell>
                             <TableSortLabel
-                                active={order_by === 'day'}
-                                direction={order_by === 'day' ? order : 'asc'}
+                                active={order_by[0] && order_by[0].prop === 'day'}
+                                direction={order_by[0] && order_by[0].prop === 'day' ? order_by[0].order : 'asc'}
                                 onClick={createSortHandler('day')}
                             >
                                 Day
@@ -110,8 +106,8 @@ function ClientTable(props) {
                         </TableCell>
                         <TableCell>
                             <TableSortLabel
-                                active={order_by === 'time_of_day'}
-                                direction={order_by === 'time_of_day' ? order : 'asc'}
+                                active={order_by[0] && order_by[0].prop === 'time_of_day'}
+                                direction={order_by[0] && order_by[0].prop === 'time_of_day' ? order_by[0].order : 'asc'}
                                 onClick={createSortHandler('time_of_day')}
                             >
                                 Time
