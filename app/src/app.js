@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select, MenuItem, Popper, Paper, Grow, ButtonGroup, MenuList, ClickAwayListener } from '@material-ui/core';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { wrap } from 'comlink';
@@ -89,8 +89,8 @@ function App() {
     const [tab, setTab] = useState(0);
     const [clients, setClients] = useState([]);
     const [workers, setWorkers] = useState([]);
-    const [plan, setPlan] = useState([]);
     const [quality, setQuality] = useState(0);
+    const [plan, setPlan] = useState([]);
     const [plan_split, setPlanSplit] = useState([]);
     const [loading, setLoading] = useState(false);
     const [filter_worker, setFilterWorker] = useState(-1);
@@ -102,15 +102,13 @@ function App() {
 
     const handleClientChange = (c) => {
         setClients(c);
+        changed.current = true;
     };
 
     const handleWorkerChange = (w) => {
         setWorkers(w);
-    };
-
-    useEffect(() => {
         changed.current = true;
-    }, [clients, workers]);
+    };
 
     const handleTabChange = async (__, new_tab) => {
         setTab(new_tab);
@@ -118,6 +116,9 @@ function App() {
             setLoading(true);
             try {
                 if(changed.current) {
+                    setQuality(0);
+                    setPlan([]);
+                    setPlanSplit([]);
                     await await planner.setWorkersAndClients(workers, clients);
                     setQuality(await planner.getPlanQuality());
                     setPlan(await planner.getPlan());
@@ -126,6 +127,7 @@ function App() {
                 }
             } catch(e) {
                 setTab(0);
+                console.error(e);
             }
             setLoading(false);
         }
@@ -228,7 +230,7 @@ function App() {
                                     </Grow>
                                 )}
                             </Popper>
-                            {loading && <CircularProgress size={24} className={classes.button_progress} />}
+                            {loading && <CircularProgress color="secondary" size={24} className={classes.button_progress} />}
                         </span>
                         <span className={classes.quality}>
                             Quality: {Number.parseFloat(quality).toPrecision(5)}
@@ -242,7 +244,7 @@ function App() {
                                 onChange={handleFilterWorkerChange}
                             >
                                 <MenuItem value={-1}><em>None</em></MenuItem>
-                                {plan_split.map((worker, index) => (<MenuItem key={index} value={index}>{worker[0][0].worker.name}</MenuItem>))}
+                                {plan_split.filter(worker => worker[0].length > 0).map((worker, index) => (<MenuItem key={index} value={index}>{worker[0][0].worker.name}</MenuItem>))}
                             </Select>
                             <Select
                                 label="Day"

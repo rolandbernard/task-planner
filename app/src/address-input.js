@@ -30,7 +30,7 @@ const useStyles = makeStyles({
 
 function AddressInput(props) {
     const classes = useStyles();
-    const { editable, onChange, value, ...others } = props;
+    const { editable, onChange, onLonLatChange, value, ...others } = props;
     const [faulty, setFaulty] = useState(false);
 
     useEffect(() => {
@@ -38,24 +38,20 @@ function AddressInput(props) {
             try {
                 const [lon, lat] = await getCoordinatedForAddress(value);
                 setFaulty(false);
-                onChange({target: {value: value}, lon: lon, lat: lat});
+                onLonLatChange({lon: lon, lat: lat});
             } catch(e) {
                 setFaulty(true);
             }
         }, 500);
         return () => clearTimeout(timout);
-    }, [value]);
-
-    const onChangeCheck = (e) => {
-        onChange(e);
-    };
+    }, [value, onLonLatChange]);
 
     return (
         <Tooltip title={faulty ? 'Address not found' : ''}>
             {editable ?
                 <TextField
                     error={faulty}
-                    onChange={onChangeCheck}
+                    onChange={onChange}
                     value={value}
                     InputProps={{startAdornment: 
                         <InputAdornment position="start">

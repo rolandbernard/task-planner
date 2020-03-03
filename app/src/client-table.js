@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect, createRef } from 'react';
-import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, IconButton, Select, MenuItem, TextField, InputAdornment } from '@material-ui/core';
+import React, { createRef } from 'react';
+import { Table, TableHead, TableBody, TableRow, TableCell, Tooltip, IconButton, Select, MenuItem, TextField, InputAdornment, CircularProgress } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
@@ -12,7 +12,7 @@ import { saveAs } from 'file-saver';
 
 import AddressInput from './address-input';
 
-const useStyles = makeStyles(({
+const styles = {
     root: {
         position: 'relative',
         height: '100%',
@@ -66,204 +66,302 @@ const useStyles = makeStyles(({
     span_grey: {
         color: '#757575',
     },
-}));
+    button_progress: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -28,
+        marginLeft: -24,
+    },
+};
 
-function ClientTable(props) {
-    const classes = useStyles();
-    const { onClientChange } = props;
-    const [clients, setClients] = useState([]);
-    const [speedDialOpen, setSpeedDialOpen] = useState(false);
-    const [editable, setEditable] = useState(-1);
-    const file_input_ref = createRef();
-
-    useEffect(() => {
-        if(onClientChange) {
-            onClientChange(clients);
-        }
-    });
-
-    const handleAddClient = () => {
-        setEditable(clients.length);
-        setClients(clients.concat([{
-            name: "",
-            address: "",
-            working_time: 0,
-            priority: 0.5,
-            lon: undefined,
-            lat: undefined,
-        }]));
-    };
-
-    const handleSpeedDialClose = () => {
-        setSpeedDialOpen(false);
-    };
-
-    const handleSpeedDialOpen = () => {
-        setSpeedDialOpen(true);
-    };
-
-    const handleDeleteClient = (index) => {
-        setEditable(-1);
-        setClients(clients.slice(0, index).concat(clients.slice(index+1)));
-    };
-
-    const handleUpdateClient = (index, changes) => {
-        setClients((() => {
-            const c = clients.slice();
-            for(let field in changes) {
-                c[index][field] = changes[field];
-            }
-            return c;
-        })());
-    };
-
-    const handleEditClient = (index) => {
-        setEditable(editable !== index ? index : -1);
+class Client extends React.Component {
+    shouldComponentUpdate(next_props) {
+        return this.props.client.name !== next_props.client.name ||
+            this.props.client.address !== next_props.client.address ||
+            this.props.client.working_time !== next_props.client.working_time ||
+            this.props.client.priority !== next_props.client.priority ||
+            this.props.editing !== next_props.editing
     }
 
-    const handleFileImport = () => {
-        setEditable(-1);
-        const file = file_input_ref.current.files[0];
+    render() {
+        const { client, editing, onClientDelete, onClientChange, onClientChangeNoRedraw, onClientSaveEdit } = this.props;
+        return (
+            <TableRow>
+                <TableCell style={styles.table_cell}>
+                    {editing ?
+                        <TextField style={styles.input} value={client.name} onChange={(e) => onClientChange({...client, name: e.target.value})}/> :
+                        <span style={styles.span}>{client.name}</span>
+                    }
+                </TableCell>
+                <TableCell style={styles.table_cell}>
+                    <AddressInput
+                        editable={editing}
+                        style={styles.input}
+                        value={client.address}
+                        onChange={(e) => onClientChange({...client, address: e.target.value})}
+                        onLonLatChange={(e) => onClientChangeNoRedraw({...client, lon: e.lon, lat: e.lat})}
+                    />
+                </TableCell>
+                <TableCell style={styles.table_cell}>
+                    {editing ?
+                        <TextField
+                            style={styles.input}
+                            type="number"
+                            value={client.working_time}
+                            inputProps={{min: 0,}}
+                            InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
+                            onChange={(e) => onClientChange({...client, working_time: e.target.value && parseInt(e.target.value)})}
+                        /> :
+                            <span style={styles.span}><span style={styles.span_grey}>Min.</span>&nbsp;&nbsp;{client.working_time}</span>
+                    }
+                </TableCell>
+                <TableCell style={styles.table_cell}>
+                    {editing ?
+                        <Select style={styles.input} value={client.priority} onChange={(e) => onClientChange({...client, priority: e.target.value})}>
+                            <MenuItem value={0.2}>Low</MenuItem>
+                            <MenuItem value={0.5}>Medium</MenuItem>
+                            <MenuItem value={1}>High</MenuItem>
+                        </Select> :
+                        <span style={styles.span}>{client.priority === 0.2 ? 'Low' : client.priority === 0.5 ? 'Medium' : 'High'}</span>
+                    }
+                </TableCell>
+                <TableCell style={styles.table_last_cell}>
+                    <Tooltip title={editing ? 'Save' : 'Edit client'}>
+                        <IconButton onClick={onClientSaveEdit}>{editing ? <DoneIcon/> : <EditIcon/>}</IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete client">
+                        <IconButton onClick={onClientDelete}><DeleteIcon/></IconButton>
+                    </Tooltip>
+                </TableCell>
+            </TableRow>
+        );
+    }
+}
+
+class Clients extends React.Component {
+    shouldComponentUpdate(next_props) {
+        return this.props.clients !== next_props.clients || this.props.editing !== next_props.editing;
+    }
+
+    render() {
+        const { clients, editing, onClientDelete, onClientChange, onClientChangeNoRedraw, onClientSaveEdit } = this.props;
+        return (
+            <Table style={styles.table}>
+                <TableBody>
+                    {clients.map((client) => (
+                        <Client
+                            key={client.id}
+                            client={client}
+                            editing={editing === client.id}
+                            onClientDelete={() => onClientDelete(client.id)}
+                            onClientChange={(c) => onClientChange(client.id, c)}
+                            onClientChangeNoRedraw={(c) => onClientChangeNoRedraw(client.id, c)}
+                            onClientSaveEdit={() => onClientSaveEdit(client.id)}
+                        />
+                    ))}
+                </TableBody>
+            </Table>
+        );
+    }
+}
+
+class ClientTable extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            clients: [],
+            editable: -1,
+            speed_dial_open: false,
+            loading: false,
+        };
+        this.next_id = 0;
+        this.file_input_ref = createRef();
+        this.handleAddClient = this.handleAddClient.bind(this);
+        this.handleSpeedDialOpen = this.handleSpeedDialOpen.bind(this);
+        this.handleDeleteClient = this.handleDeleteClient.bind(this);
+        this.handleUpdateClient = this.handleUpdateClient.bind(this);
+        this.handleUpdateClientNoRedraw = this.handleUpdateClientNoRedraw.bind(this);
+        this.handleEditClient = this.handleEditClient.bind(this);
+        this.handleFileImport = this.handleFileImport.bind(this);
+        this.handleFileExport = this.handleFileExport.bind(this);
+        this.handleDeleteAll = this.handleDeleteAll.bind(this);
+    }
+
+    componentDidUpdate(__, prev_state) {
+        if(this.props.onClientChange && this.state.clients !== prev_state.clients) {
+            this.props.onClientChange(this.state.clients);
+        }
+    }
+
+    handleAddClient() {
+        this.setState({
+            editable: this.next_id,
+            clients: [...this.state.clients, {
+                id: this.next_id++,
+                name: "",
+                address: "",
+                working_time: 0,
+                priority: 0.5,
+                lon: undefined,
+                lat: undefined,
+            }],
+        });
+    };
+
+    handleSpeedDialOpen(v) {
+        this.setState({
+            speed_dial_open: v,
+        });
+    };
+
+    handleDeleteClient(id) {
+        const index = this.state.clients.findIndex((client) => client.id === id);
+        this.setState({
+            clients: this.state.clients.slice(0, index).concat(this.state.clients.slice(index+1)),
+            editable: -1,
+        });
+    };
+
+    handleUpdateClient(id, client) {
+        const index = this.state.clients.findIndex((client) => client.id === id);
+        const c = this.state.clients.slice();
+        c[index] = client;
+        this.setState({
+            clients: c,
+        });
+    };
+
+    handleUpdateClientNoRedraw(id, client) {
+        const index = this.state.clients.findIndex((client) => client.id === id);
+        this.state.clients[index] = client;
+        if(this.props.onClientChange) {
+            this.props.onClientChange(this.state.clients);
+        }
+    };
+
+    handleEditClient(id) {
+        this.setState({
+            editable: this.state.editable !== id ? id : -1
+        });
+    };
+
+    handleFileImport() {
+        this.setState({
+            editable: -1,
+            loading: true,
+        });
+        const file = this.file_input_ref.current.files[0];
         const reader = new FileReader();
         reader.addEventListener('load', () => {
             try {
                 const csv = reader.result;
-                setClients(clients.concat(csv.split('\n').filter(csvline => csvline.split(';').length === 4).map(csvline => {
-                    const fields = csvline.split(';');
-                    const client = {
-                        name: fields[0],
-                        address: fields[1],
-                        working_time: parseInt(fields[2]),
-                        priority: parseFloat(fields[3]),
-                    };
-                    return client;
-                })));
-            } catch(e) { }
+                this.setState({
+                    clients: this.state.clients.concat(csv.split('\n').filter(csvline => csvline.split(';').length === 4).map(csvline => {
+                        const fields = csvline.split(';');
+                        const client = {
+                            id: this.next_id++,
+                            name: fields[0],
+                            address: fields[1],
+                            working_time: parseInt(fields[2]),
+                            priority: parseFloat(fields[3]),
+                        };
+                        return client;
+                    })),
+                    loading: false,
+                });
+            } catch(e) {
+                this.setState({
+                    loading: false,
+                });
+            }
         });
         reader.readAsText(file);
     }
 
-    const handleFileExport = () => {
-        setEditable(-1);
-        const csv = clients.map(client => (client.name + ';' + client.address + ';' + client.working_time + ';' + client.priority)).join('\n');
+    handleFileExport() {
+        this.setState({
+            editable: -1,
+        });
+        const csv = this.state.clients.map(client => (client.name + ';' + client.address + ';' + client.working_time + ';' + client.priority)).join('\n');
         const blob = new Blob([csv], {type: 'text/csv'});
         saveAs(blob, 'clients-export.csv');
     }
 
-    const handleDeleteAll = () => {
-        setEditable(-1);
-        setClients([]);
+    handleDeleteAll() {
+        this.setState({
+            editable: -1,
+            clients: [],
+        });
     }
 
-    return (
-        <div className={classes.root}>
-            <Table className={classes.table}>
-                <TableHead className={classes.table_head}>
-                    <TableRow>
-                        <TableCell className={classes.table_cell}>Name</TableCell>
-                        <TableCell className={classes.table_cell}>Address</TableCell>
-                        <TableCell className={classes.table_cell}>Estimated duration</TableCell>
-                        <TableCell className={classes.table_cell}>Priority</TableCell>
-                        <TableCell className={classes.table_last_cell}>
-                            <input className={classes.file_input} type="file" accept="text/csv" ref={file_input_ref} onChange={handleFileImport}/>
-                            <SpeedDial
-                                ariaLabel="SpeedDial"
-                                className={classes.speed_dial}
-                                icon={<SpeedDialIcon />}
-                                onClose={handleSpeedDialClose}
-                                onOpen={handleSpeedDialOpen}
-                                open={speedDialOpen}
-                                direction="down"
-                                FabProps={{size: 'small', color: 'default'}}
-                            >
-                                <SpeedDialAction
-                                    icon={(<AddIcon/>)}
-                                    tooltipTitle="Add a client"
-                                    onClick={handleAddClient}
-                                />
-                                <SpeedDialAction
-                                    icon={(<PublishIcon/>)}
-                                    tooltipTitle="Import csv"
-                                    onClick={() => {file_input_ref.current.click()}}
-                                />
-                                <SpeedDialAction
-                                    icon={(<GetAppIcon/>)}
-                                    tooltipTitle="Export csv"
-                                    onClick={handleFileExport}
-                                />
-                                <SpeedDialAction
-                                    icon={(<DeleteIcon/>)}
-                                    tooltipTitle="Delete all clients"
-                                    onClick={handleDeleteAll}
-                                />
-                            </SpeedDial>
-                        </TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    <TableRow className={classes.table_hidden}>
-                        <TableCell className={classes.table_hidden} colSpan={5}>
-                            <div className={classes.scrolldiv}>
-                                <Table className={classes.table}>
-                                    <TableBody>
-                                        {clients.map((client, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className={classes.table_cell}>
-                                                    {index === editable ?
-                                                        <TextField className={classes.input} value={client.name} onChange={(e) => handleUpdateClient(index, {'name': e.target.value})}/> :
-                                                        <span className={classes.span}>{client.name}</span>
-                                                    }
-                                                </TableCell>
-                                                <TableCell className={classes.table_cell}>
-                                                    <AddressInput
-                                                        editable={index === editable}
-                                                        className={classes.input}
-                                                        value={client.address}
-                                                        onChange={(e) => handleUpdateClient(index, {'address': e.target.value, 'lon': e.lon, 'lat': e.lat})}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className={classes.table_cell}>
-                                                    {index === editable ?
-                                                        <TextField
-                                                            className={classes.input}
-                                                            type="number"
-                                                            value={client.working_time}
-                                                            inputProps={{min: 0,}}
-                                                            InputProps={{startAdornment: <InputAdornment position="start">Min.</InputAdornment>,}}
-                                                            onChange={(e) => handleUpdateClient(index, {'working_time': e.target.value ? parseInt(e.target.value) : ''})}
-                                                        /> :
-                                                        <span className={classes.span}><span className={classes.span_grey}>Min.</span>&nbsp;&nbsp;{client.working_time}</span>
-                                                    }
-                                                </TableCell>
-                                                <TableCell className={classes.table_cell}>
-                                                    {index === editable ?
-                                                        <Select className={classes.input} value={client.priority} onChange={(e) => handleUpdateClient(index, {'priority': e.target.value})}>
-                                                            <MenuItem value={0.2}>Low</MenuItem>
-                                                            <MenuItem value={0.5}>Medium</MenuItem>
-                                                            <MenuItem value={1}>High</MenuItem>
-                                                        </Select> :
-                                                        <span className={classes.span}>{client.priority === 0.2 ? 'Low' : client.priority === 0.5 ? 'Medium' : 'High'}</span>
-                                                    }
-                                                </TableCell>
-                                                <TableCell className={classes.table_last_cell}>
-                                                    <Tooltip title={index === editable ? 'Save' : 'Edit client'}>
-                                                        <IconButton onClick={() => handleEditClient(index)}>{index === editable ? <DoneIcon/> : <EditIcon/>}</IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete client">
-                                                        <IconButton onClick={() => handleDeleteClient(index)}><DeleteIcon/></IconButton>
-                                                    </Tooltip>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-        </div>
-    );
+    render() {
+        return (
+            <div style={styles.root}>
+                <Table style={styles.table}>
+                    <TableHead style={styles.table_head}>
+                        <TableRow>
+                            <TableCell style={styles.table_cell}>Name</TableCell>
+                            <TableCell style={styles.table_cell}>Address</TableCell>
+                            <TableCell style={styles.table_cell}>Estimated duration</TableCell>
+                            <TableCell style={styles.table_cell}>Priority</TableCell>
+                            <TableCell style={styles.table_last_cell}>
+                                <input style={styles.file_input} type="file" accept="text/csv" ref={this.file_input_ref} onChange={this.handleFileImport}/>
+                                <SpeedDial
+                                    ariaLabel="SpeedDial"
+                                    style={styles.speed_dial}
+                                    icon={<SpeedDialIcon />}
+                                    onClose={() => this.handleSpeedDialOpen(false)}
+                                    onOpen={() => this.handleSpeedDialOpen(true)}
+                                    open={this.state.speed_dial_open}
+                                    direction="down"
+                                    FabProps={{size: 'small', color: 'default', disabled: this.state.loading}}
+                                >
+                                    <SpeedDialAction
+                                        icon={(<AddIcon/>)}
+                                        tooltipTitle="Add a client"
+                                        onClick={this.handleAddClient}
+                                    />
+                                    <SpeedDialAction
+                                        icon={(<PublishIcon/>)}
+                                        tooltipTitle="Import csv"
+                                        onClick={() => {this.file_input_ref.current.click()}}
+                                    />
+                                    <SpeedDialAction
+                                        icon={(<GetAppIcon/>)}
+                                        tooltipTitle="Export csv"
+                                        onClick={this.handleFileExport}
+                                    />
+                                    <SpeedDialAction
+                                        icon={(<DeleteIcon/>)}
+                                        tooltipTitle="Delete all clients"
+                                        onClick={this.handleDeleteAll}
+                                    />
+                                </SpeedDial>
+                                {this.state.loading && <CircularProgress color="secondary" size={48} style={styles.button_progress} />}
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow style={styles.table_hidden}>
+                            <TableCell style={styles.table_hidden} colSpan={5}>
+                                <div style={styles.scrolldiv}>
+                                    <Clients
+                                        clients={this.state.clients}
+                                        editing={this.state.editable}
+                                        onClientChange={this.handleUpdateClient}
+                                        onClientChangeNoRedraw={this.handleUpdateClientNoRedraw}
+                                        onClientSaveEdit={this.handleEditClient}
+                                        onClientDelete={this.handleDeleteClient}
+                                    />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
+        );
+    }
 }
 
 export default ClientTable;

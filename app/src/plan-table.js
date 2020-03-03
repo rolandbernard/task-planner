@@ -121,8 +121,8 @@ function ClientTable(props) {
                             <div className={classes.scrolldiv}>
                                 <Table className={classes.table}>
                                     <TableBody>
-                                        {sortedPlan.map((planned_task, index) => (
-                                            <TableRow key={index} className={classes.table_hidden}>
+                                        {sortedPlan.map((planned_task) => (
+                                            <TableRow key={JSON.stringify(planned_task)} className={classes.table_hidden}>
                                                 <TableCell>{planned_task.worker.name}</TableCell>
                                                 <TableCell>{planned_task.client.name}</TableCell>
                                                 <TableCell>{'Day ' + (planned_task.day+1)}</TableCell>
