@@ -88,6 +88,15 @@ class PlanMap extends React.Component {
                 }
             }
         });
+        this.map.on('pointermove', (event) => {
+            if(this.props.onTaskHover) {
+                const hover_features = this.map.getFeaturesAtPixel(event.pixel).filter((feature) => feature.get('type') === 'client');
+                hover_features.forEach((feature) => this.props.onTaskHover(feature.get('task')));
+                if(hover_features.length === 0) {
+                    this.props.onTaskHover(null);
+                }
+            }
+        });
     }
 
     componentDidMount() {
@@ -116,10 +125,11 @@ class PlanMap extends React.Component {
                         type: 'worker',
                         geometry: new Point(fromLonLat(worker_coords)),
                     }));
-                    this.vector_source.addFeatures(client_coords.map((coords) => {
+                    this.vector_source.addFeatures(plan[worker][day].map((task) => {
                         return new Feature({
+                            task: task,
                             type: 'client',
-                            geometry: new Point(fromLonLat(coords)),
+                            geometry: new Point(fromLonLat([task.client.lon, task.client.lat])),
                         });
                     }));
                 }

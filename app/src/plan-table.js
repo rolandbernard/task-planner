@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, createRef, useEffect } from 'react';
 import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, TableSortLabel } from '@material-ui/core';
 
 const useStyles = makeStyles(({
@@ -28,6 +28,9 @@ const useStyles = makeStyles(({
         padding: 0,
         position: 'relative',
     },
+    table_row_high: {
+        background: '#EFEFEF',
+    },
 }));
 
 function toPaddedIntString(num) {
@@ -41,8 +44,15 @@ function toPaddedIntString(num) {
 
 function ClientTable(props) {
     const classes = useStyles();
-    const { plan } = props;
+    const { plan, highlightClient } = props;
     const [order_by, setOrderBy] = useState([]);
+    const in_view_ref = createRef();
+
+    useEffect(() => {
+        if(in_view_ref.current) {
+            in_view_ref.current.scrollIntoView();
+        }
+    }, [in_view_ref]);
 
     const createSortHandler = property => () => {
         if(!(order_by[0]) || order_by[0].prop !== property) {
@@ -122,7 +132,7 @@ function ClientTable(props) {
                                 <Table className={classes.table}>
                                     <TableBody>
                                         {sortedPlan.map((planned_task) => (
-                                            <TableRow key={JSON.stringify(planned_task)} className={classes.table_hidden}>
+                                            <TableRow key={JSON.stringify(planned_task)} ref={planned_task.client.id === highlightClient ? in_view_ref : null} className={planned_task.client.id === highlightClient ? classes.table_row_high : null}>
                                                 <TableCell>{planned_task.worker.name}</TableCell>
                                                 <TableCell>{planned_task.client.name}</TableCell>
                                                 <TableCell>{'Day ' + (planned_task.day+1)}</TableCell>

@@ -95,6 +95,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [filter_worker, setFilterWorker] = useState(-1);
     const [filter_day, setFilterDay] = useState(-1);
+    const [highlight, setHighlight] = useState(-1);
     const changed = useRef(true);
     const button_anchor_ref = useRef(null);
     const [button_open, setButtonOpen] = useState(false);
@@ -153,10 +154,14 @@ function App() {
         setFilterDay(e.target.value);
     }
 
-    const filterd_plan_split = useMemo(() => {
-        return plan_split.filter((__, index) => (filter_worker === -1 || index === filter_worker))
+    const filtered_plan_split = useMemo(() => {
+        return plan_split.filter((worker) => worker.length > 0 && worker[0].length > 0 && (filter_worker === -1 || worker[0][0].worker.id === filter_worker))
             .map(worker => worker.filter((__, index) => (filter_day === -1 || filter_day === index)));
     }, [filter_worker, filter_day, plan_split]);
+
+    const filtered_plan = useMemo(() => {
+        return plan.filter((task) => (filter_worker === -1 || task.worker.id === filter_worker) && (filter_day === -1 || filter_day === task.day));
+    }, [filter_worker, filter_day, plan]);
 
     const handleButtonToggle = () => {
         setButtonOpen(!button_open);
@@ -170,6 +175,10 @@ function App() {
         setRounds(r);
         setButtonOpen(false);
     };
+
+    const onTaskHover = (t) => {
+        setHighlight(t ? t.client.id : -1);
+    }
 
     return (
         <div className={classes.app}>
@@ -244,7 +253,7 @@ function App() {
                                 onChange={handleFilterWorkerChange}
                             >
                                 <MenuItem value={-1}><em>None</em></MenuItem>
-                                {plan_split.filter(worker => worker[0].length > 0).map((worker, index) => (<MenuItem key={index} value={index}>{worker[0][0].worker.name}</MenuItem>))}
+                                {workers.map((worker) => (<MenuItem key={worker.id} value={worker.id}>{worker.name}</MenuItem>))}
                             </Select>
                             <Select
                                 label="Day"
@@ -253,16 +262,24 @@ function App() {
                                 onChange={handleFilterDayChange}
                             >
                                 <MenuItem value={-1}><em>None</em></MenuItem>
-                                {(filter_worker !== -1) && plan_split[filter_worker].map((__, index) => (<MenuItem key={index} value={index}>{'Day ' + (index+1)}</MenuItem>))}
+                                {(filter_worker !== -1) &&
+                                        plan_split.filter((worker) => worker.length > 0 && worker[0].length > 0 && worker[0][0].worker.id === filter_worker)
+                                        .map((worker) => worker.map((__, index) => (<MenuItem key={index} value={index}>{'Day ' + (index+1)}</MenuItem>)))}
                             </Select>
                         </span>
                     </Box>
                     <Box className={classes.map_box}>
-                        <PlanMap plan={filterd_plan_split}/>
+                        <PlanMap
+                            plan={filtered_plan_split}
+                            onTaskHover={onTaskHover}
+                        />
                     </Box>
                 </Box>
                 <Box className={classes.boxes}>
-                    <PlanTable plan={plan}/>
+                    <PlanTable
+                        plan={filtered_plan}
+                        highlightClient={highlight}
+                    />
                 </Box>
             </TabPanel>
         </div>
