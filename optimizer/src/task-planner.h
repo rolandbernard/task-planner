@@ -7,6 +7,7 @@
 #include <string>
 
 struct Worker {
+    int id;
     std::string name;
     std::string address;
     int maximum_time;
@@ -15,6 +16,7 @@ struct Worker {
 };
 
 struct Client {
+    int id;
     std::string name;
     std::string address;
     int working_time;

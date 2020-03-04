@@ -13,13 +13,14 @@ EMSCRIPTEN_BINDINGS(Bindings) {
         .field("day", &PlannedTask::day)
         .field("time_of_day", &PlannedTask::time_of_day);
     emscripten::value_object<Worker>("Worker")
+        .field("id", &Worker::id)
         .field("name", &Worker::name)
         .field("address", &Worker::address)
         .field("maximum_time", &Worker::maximum_time)
         .field("lon", &Worker::lon)
         .field("lat", &Worker::lat);
     emscripten::value_object<Client>("Client")
-        .field("name", &Client::name)
+        .field("id", &Client::id)
         .field("address", &Client::address)
         .field("working_time", &Client::working_time)
         .field("priority", &Client::priority)
