@@ -1,9 +1,10 @@
 
 test
+test*
 .gdb_history
 .compile_commands.json
 .clangd
 perf.data
 perf.data.old
 build/
-
+.vscode/

@@ -5,7 +5,7 @@
 
 std::mt19937_64 generator(time(NULL));
 
-long random() {
+long random() noexcept {
     long n = (long)(generator());
     return n < 0 ? -n : n;
 }

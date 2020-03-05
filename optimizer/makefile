@@ -1,10 +1,11 @@
 OBJECTS=$(BUILD)/optimizer.o $(BUILD)/util.o $(BUILD)/mutation.o $(BUILD)/crossover.o $(BUILD)/sample.o $(BUILD)/tsp.o $(BUILD)/kmeans.o $(BUILD)/task-planner.o
-LIBS=
+SOURCE=$(SRC)/test.cpp $(SRC)/util.cpp $(SRC)/mutation.cpp $(SRC)/crossover.cpp $(SRC)/sample.cpp $(SRC)/tsp.cpp $(SRC)/kmeans.cpp $(SRC)/task-planner.cpp
 ARGS=-Wall -std=c++17 -O3
 DEBUGARGS=-Wall -std=c++17 -O0 -g -fsanitize=address,undefined
 WASMARGS=--bind -s MODULARIZE=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_NAME=Optimizer -s ENVIRONMENT=web,worker -s FILESYSTEM=0
 CLEAN=rm -f
 CPPC=emcc
+CPPCTEST=clang++
 SRC=./src
 BUILD=./build
 
@@ -13,10 +14,13 @@ all:
 	make $(BUILD)/optimizer.js
 
 $(BUILD)/optimizer.js: $(OBJECTS)
-	$(CPPC) $(ARGS) $(WASMARGS) $(OBJECTS) $(LIBS) -o $(BUILD)/optimizer.js
+	$(CPPC) $(ARGS) $(WASMARGS) $(OBJECTS) -o $(BUILD)/optimizer.js
 	sed -i '1s;^;/* eslint-disable */\n;' $(BUILD)/optimizer.js
 	cp $(BUILD)/optimizer.js ../app/src/
 	cp $(BUILD)/optimizer.wasm ../app/public/
+
+test: $(SOURCE)
+	$(CPPCTEST) $(ARGS) $(SOURCE) -o test
 
 $(BUILD)/test.o: $(SRC)/test.cpp $(SRC)/util.h $(SRC)/mutation.h $(SRC)/task-planner.h $(SRC)/crossover.h $(SRC)/sample.h
 	$(CPPC) -c -o $(BUILD)/test.o $(ARGS) $(SRC)/test.cpp

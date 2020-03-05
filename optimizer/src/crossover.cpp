@@ -2,6 +2,7 @@
 #include "crossover.h"
 
 #include <vector>
+#include <cassert>
 
 #include "util.h"
 
@@ -156,6 +157,72 @@ namespace crossover {
                 child_b[i] = parent_a[i];
             }
         }
+    }
+
+    void half_eadge_recompination(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child) {
+        int chromosome_lenght = parent_a.size();
+        int eadges[chromosome_lenght][4];
+        int counts[chromosome_lenght];
+        bool used[chromosome_lenght];
+        for(int i = 0; i < chromosome_lenght; i++) {
+            counts[i] = 0;
+            used[i] = false;
+        }
+        auto add_eadge = [&eadges, &counts](int from, int to) {
+            for(int i = 0; i < counts[from]; i++) {
+                if(eadges[from][i] == to) {
+                    return;
+                }
+            }
+            eadges[from][counts[from]] = to;
+            counts[from]++;
+        };
+        for(int i = 0; i < chromosome_lenght; i++) {
+            add_eadge(parent_a[i], parent_a[(i + 1) % chromosome_lenght]);
+            add_eadge(parent_a[i], parent_a[(chromosome_lenght + i - 1) % chromosome_lenght]);
+            add_eadge(parent_b[i], parent_b[(i + 1) % chromosome_lenght]);
+            add_eadge(parent_b[i], parent_b[(chromosome_lenght + i - 1) % chromosome_lenght]);
+        }
+        auto remove_eadge = [&eadges, &counts](int elem) {
+            for(int i = 0; i < counts[elem]; i++) {
+                int from = eadges[elem][i];
+                for(int j = 0; j < counts[from]; j++) {
+                    if(eadges[from][j] == elem) {
+                        counts[from]--;
+                        eadges[from][j] = eadges[from][counts[from]];
+                        break;
+                    }
+                }
+            }
+            counts[elem] = 0;
+        };
+        int current = random() % chromosome_lenght;
+        remove_eadge(current);
+        child[0] = current;
+        for(int i = 1; i < chromosome_lenght; i++) {
+            used[current] = true;
+            if(counts[current] > 0) {
+                int min = eadges[current][0];
+                for(int j = 1; j < counts[current]; j++) {
+                    if(counts[min] > counts[eadges[current][j]]) {
+                        min = eadges[current][j];
+                    }
+                }
+                current = min;
+            } else {
+                current = random() % chromosome_lenght;
+                while(used[current]) {
+                    current = random() % chromosome_lenght;
+                }
+            }
+            remove_eadge(current);
+            child[i] = current;
+        }
+    }
+
+    void eadge_recompination(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child_a, std::vector<int>& child_b) {
+        half_eadge_recompination(parent_a, parent_b, child_a);
+        half_eadge_recompination(parent_a, parent_b, child_b);
     }
 }
 

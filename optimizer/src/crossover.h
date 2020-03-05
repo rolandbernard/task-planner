@@ -9,6 +9,8 @@ namespace crossover {
     void order1(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child_a, std::vector<int>& child_b);
 
     void pmx(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child_a, std::vector<int>& child_b);
+
+    void eadge_recompination(const std::vector<int>& parent_a, const std::vector<int>& parent_b, std::vector<int>& child_a, std::vector<int>& child_b);
 }
 
 #endif
