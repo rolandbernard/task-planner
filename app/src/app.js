@@ -120,6 +120,8 @@ function App() {
                     setQuality(0);
                     setPlan([]);
                     setPlanSplit([]);
+                    setFilterWorker(-1);
+                    setFilterDay(-1);
                     await await planner.setWorkersAndClients(workers, clients);
                     setQuality(await planner.getPlanQuality());
                     setPlan(await planner.getPlan());
@@ -128,7 +130,6 @@ function App() {
                 }
             } catch(e) {
                 setTab(0);
-                console.error(e);
             }
             setLoading(false);
         }

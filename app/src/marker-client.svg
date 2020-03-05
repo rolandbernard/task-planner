@@ -23,15 +23,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="956"
-     inkscape:window-height="1037"
+     inkscape:window-width="1916"
+     inkscape:window-height="917"
      id="namedview7"
      showgrid="false"
-     inkscape:zoom="19.666667"
-     inkscape:cx="10.847881"
-     inkscape:cy="6.476284"
-     inkscape:window-x="960"
-     inkscape:window-y="1241"
+     inkscape:zoom="27.812867"
+     inkscape:cx="6.9567925"
+     inkscape:cy="8.0361565"
+     inkscape:window-x="0"
+     inkscape:window-y="1361"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg6" />
   <metadata
@@ -56,4 +56,17 @@
      id="path4"
      fill="none"
      d="M0 0h24v24H0z" />
+  <ellipse
+     ry="12.101695"
+     rx="12.762712"
+     cy="12"
+     cx="12.355931"
+     id="path814"
+     style="fill:#ffffff;fill-opacity:0;stroke:none;stroke-width:47.69556046;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
+  <circle
+     style="fill:#ff9100;fill-opacity:0.19607843;stroke:none;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+     id="path815"
+     cx="12.00883"
+     cy="8.3957109"
+     r="3.0508475" />
 </svg>

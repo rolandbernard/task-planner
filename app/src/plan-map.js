@@ -4,7 +4,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import Feature from 'ol/Feature';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { OSM as OsmSource, Vector as VectorSource } from 'ol/source';
+import { XYZ as XyzSource, Vector as VectorSource } from 'ol/source';
 import { fromLonLat } from 'ol/proj';
 import { Polyline } from 'ol/format';
 import { Point } from 'ol/geom';
@@ -15,6 +15,8 @@ import { getRoutePolyline6 } from './osrm';
 
 import workerMarker from './marker-worker.svg';
 import clientMarker from './marker-client.svg';
+import config from './config';
+import './plan-map.css'
 
 const styles = {
     'route': new Style({
@@ -27,12 +29,6 @@ const styles = {
         stroke: new Stroke({
             color: [120, 120, 255, 1],
             width: 10,
-        })
-    }),
-    'routeShadow': new Style({
-        stroke: new Stroke({
-            color: [120, 120, 255, 0.5],
-            width: 6,
         })
     }),
     'worker': new Style({
@@ -49,11 +45,20 @@ const styles = {
             scale: 1.5,
         })
     }),
+    'clientHighlight': new Style({
+        image: new Icon({
+            anchor: [0.5, 1],
+            src: clientMarker,
+            scale: 2,
+        })
+    }),
 };
 
 class PlanMap extends React.Component {
     constructor(prop) {
         super(prop);
+        this.last_route_highlights = [];
+        this.last_client_highlights = [];
         this.map_ref = createRef();
         this.vector_source = new VectorSource({});
         this.map = new Map({
@@ -63,7 +68,11 @@ class PlanMap extends React.Component {
             }),
             layers: [
                 new TileLayer({
-                    source: new OsmSource()
+                    source: new XyzSource({
+                        attributions: config.map.attributions,
+                        attributionsCollapsible: true,
+                        url: config.map.xyz_url,
+                    })
                 }),
                 new VectorLayer({
                     source: this.vector_source,
@@ -74,25 +83,31 @@ class PlanMap extends React.Component {
             ],
         });
         this.map.on('pointermove', (event) => {
-            const hover_features = this.map.getFeaturesAtPixel(event.pixel).filter((feature) => feature.get('type').substr(0, 5) === 'route');
-            const all_features = this.vector_source.getFeatures().filter((feature) => feature.get('type').substr(0, 5) === 'route');
-            for(let feature of all_features) {
-                if(hover_features.length === 1) {
-                    if(hover_features.includes(feature)) {
-                        feature.set('type', 'routeHighlight');
-                    } else {
-                        feature.set('type', 'routeShadow');
-                    }
-                } else {
-                    feature.set('type', 'route');
+            this.last_route_highlights.forEach((feature) => {
+                feature.set('type', 'route');
+            });
+            this.last_route_highlights = [];
+            this.last_client_highlights.forEach((feature) => {
+                feature.set('type', 'client');
+            });
+            this.last_client_highlights = [];
+            const hover_feature = this.map.getFeaturesAtPixel(event.pixel).find((feature) => feature.get('type').substr(0, 6) === 'client');
+            if(hover_feature) {
+                const hover_route_feature = hover_feature.get('route');
+                hover_route_feature.set('type', 'routeHighlight');
+                this.last_route_highlights = [hover_route_feature];
+                hover_feature.set('type', 'clientHighlight');
+                this.last_client_highlights = [hover_feature]
+                if(this.props.onTaskHover) {
+                    this.props.onTaskHover(hover_feature.get('task'));
                 }
-            }
-        });
-        this.map.on('pointermove', (event) => {
-            if(this.props.onTaskHover) {
-                const hover_features = this.map.getFeaturesAtPixel(event.pixel).filter((feature) => feature.get('type') === 'client');
-                hover_features.forEach((feature) => this.props.onTaskHover(feature.get('task')));
-                if(hover_features.length === 0) {
+            } else {
+                const hover_features = this.map.getFeaturesAtPixel(event.pixel).filter((feature) => feature.get('type').substr(0, 5) === 'route');
+                hover_features.forEach((feature) => {
+                    feature.set('type', 'routeHighlight');
+                    this.last_route_highlights.push(feature);
+                });
+                if(this.props.onTaskHover) {
                     this.props.onTaskHover(null);
                 }
             }
@@ -128,6 +143,7 @@ class PlanMap extends React.Component {
                     this.vector_source.addFeatures(plan[worker][day].map((task) => {
                         return new Feature({
                             task: task,
+                            route: feature,
                             type: 'client',
                             geometry: new Point(fromLonLat([task.client.lon, task.client.lat])),
                         });

@@ -44,7 +44,7 @@ function AddressInput(props) {
             }
         }, 500);
         return () => clearTimeout(timout);
-    }, [value, onLonLatChange]);
+    }, [value]);
 
     return (
         <Tooltip title={faulty ? 'Address not found' : ''}>

@@ -3,7 +3,7 @@ import config from './config';
 
 export async function getDistanceMatrix(coordinates) {
     try {
-        let result = await fetch(config.osrmApiLocation + `/table/v1/driving/${coordinates.map(c => c.join(',')).join(';')}`);
+        let result = await fetch(config.osrm_api_location + `/table/v1/driving/${coordinates.map(c => c.join(',')).join(';')}`);
         if(result.status !== 200) {
             throw new Error(`Code ${result.status}`);
         } else {
@@ -21,7 +21,7 @@ export async function getDistanceMatrix(coordinates) {
 
 export async function getRoutePolyline6(coordinates) {
     try {
-        let result = await fetch(config.osrmApiLocation + `/route/v1/driving/${coordinates.map(c => c.join(',')).join(';')}?overview=full&geometries=polyline6`);
+        let result = await fetch(config.osrm_api_location + `/route/v1/driving/${coordinates.map(c => c.join(',')).join(';')}?overview=full&geometries=polyline6`);
         if(result.status !== 200) {
             throw new Error(`Code ${result.status}`);
         } else {
