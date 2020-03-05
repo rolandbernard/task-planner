@@ -1,6 +1,6 @@
 OBJECTS=$(BUILD)/optimizer.o $(BUILD)/util.o $(BUILD)/mutation.o $(BUILD)/crossover.o $(BUILD)/sample.o $(BUILD)/tsp.o $(BUILD)/kmeans.o $(BUILD)/task-planner.o
 LIBS=
-ARGS=-Wall -std=c++17 -Os
+ARGS=-Wall -std=c++17 -O3
 DEBUGARGS=-Wall -std=c++17 -O0 -g -fsanitize=address,undefined
 WASMARGS=--bind -s MODULARIZE=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_NAME=Optimizer -s ENVIRONMENT=web,worker -s FILESYSTEM=0
 CLEAN=rm -f

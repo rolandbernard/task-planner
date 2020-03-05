@@ -21,6 +21,7 @@ EMSCRIPTEN_BINDINGS(Bindings) {
         .field("lat", &Worker::lat);
     emscripten::value_object<Client>("Client")
         .field("id", &Client::id)
+        .field("name", &Client::name)
         .field("address", &Client::address)
         .field("working_time", &Client::working_time)
         .field("priority", &Client::priority)
