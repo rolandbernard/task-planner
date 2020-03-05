@@ -250,6 +250,7 @@ class ClientTable extends React.Component {
         this.setState({
             editable: -1,
             loading: true,
+            speed_dial_open: false,
         });
         const file = this.file_input_ref.current.files[0];
         const reader = new FileReader();
@@ -282,6 +283,7 @@ class ClientTable extends React.Component {
     handleFileExport() {
         this.setState({
             editable: -1,
+            speed_dial_open: false,
         });
         const csv = this.state.clients.map(client => (client.name + ';' + client.address + ';' + client.working_time + ';' + client.priority)).join('\n');
         const blob = new Blob([csv], {type: 'text/csv'});

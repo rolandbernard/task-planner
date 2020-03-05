@@ -231,6 +231,7 @@ class WorkerTable extends React.Component {
         this.setState({
             editable: -1,
             loading: true,
+            speed_dial_open: false,
         });
         const file = this.file_input_ref.current.files[0];
         const reader = new FileReader();
@@ -262,6 +263,7 @@ class WorkerTable extends React.Component {
     handleFileExport() {
         this.setState({
             editable: -1,
+            speed_dial_open: false,
         });
         const csv = this.state.workers.map(worker => (worker.name + ';' + worker.address + ';' + worker.maximum_time)).join('\n');
         const blob = new Blob([csv], {type: 'text/csv'});
