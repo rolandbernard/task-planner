@@ -122,6 +122,7 @@ class Client extends React.Component {
                             <MenuItem value={0.2}>Low</MenuItem>
                             <MenuItem value={0.5}>Medium</MenuItem>
                             <MenuItem value={1}>High</MenuItem>
+                            <MenuItem value={2}>Very High</MenuItem>
                         </Select> :
                         <span style={styles.span}>{client.priority === 0.2 ? 'Low' : client.priority === 0.5 ? 'Medium' : 'High'}</span>
                     }
