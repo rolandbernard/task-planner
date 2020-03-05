@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 struct Worker {
     int id;
@@ -31,6 +32,12 @@ struct PlannedTask {
     int day;
     int time_of_day;
 };
+
+std::ostream& operator<<(std::ostream& os, const Worker& w);
+
+std::ostream& operator<<(std::ostream& os, const Client& c);
+
+std::ostream& operator<<(std::ostream& os, const PlannedTask& pt);
 
 class TaskPlanner {
 private:

@@ -7,8 +7,7 @@
 #include <random>
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
-{ 
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
     os << "[";
     for (int i = 0; i < v.size(); ++i) { 
         os << v[i]; 
@@ -20,8 +19,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
 }
 
 template <typename T, typename R>
-std::ostream& operator<<(std::ostream& os, const std::pair<T, R>& v)
-{ 
+std::ostream& operator<<(std::ostream& os, const std::pair<T, R>& v) {
     os << "[" << v.first << ", " << v.second << "]";
     return os; 
 }

@@ -12,6 +12,21 @@
 #include "tsp.h"
 #include "util.h"
 
+std::ostream& operator<<(std::ostream& os, const Worker& w) {
+    os << "[\"" << w.name << "\", \"" << w.address << "\", " << w.maximum_time << ", " << w.lon << ", " << w.lat << "]";
+    return os; 
+}
+
+std::ostream& operator<<(std::ostream& os, const Client& c) {
+    os << "[\"" << c.name << "\", \"" << c.address << "\", " << c.working_time << ", " << c.priority << ", " << c.lon << ", " << c.lat << "]";
+    return os; 
+}
+
+std::ostream& operator<<(std::ostream& os, const PlannedTask& pt) {
+    os << "[" << pt.worker << ", " << pt.client << ", " << pt.day << ", " << pt.time_of_day << "]";
+    return os; 
+}
+
 double TaskPlanner::fittness(const std::vector<int>& sol, void* user_data) {
     TaskPlanner* planner = (TaskPlanner*)user_data;
     int worker_count = planner->workers.size();
@@ -54,62 +69,62 @@ TaskPlanner::TaskPlanner() : ga(TaskPlanner::fittness, (void*)this, crossover::p
 
 void TaskPlanner::initialize() {
     int total_count = workers.size() + clients.size();
-    /* std::vector<std::pair<long, long>> client_cords(clients.size()); */
-    /* for(int i = 0; i < clients.size(); i++) { */
-    /*     client_cords[i] = std::make_pair((long)(clients[i].lat*(1e8)), (long)(clients[i].lon*(1e8))); */
-    /* } */
-    /* auto clusters = kmeansMaxn(workers.size(), std::max<int>(15, 2*clients.size()/workers.size()), client_cords); */
-    /* /1* auto clusters = kmeans(workers.size(), client_cords); *1/ */
-    /* for(auto& cluster : clusters) { */
-    /*     if(cluster.size() <= 15) { */
-    /*         std::vector<std::vector<long>> sub_dists(cluster.size(), std::vector<long>(cluster.size())); */
-    /*         for(int e1 = 0; e1 < cluster.size(); e1++) { */
-    /*             for(int e2 = 0; e2 < cluster.size(); e2++) { */
-    /*                 sub_dists[e1][e2] = durations[cluster[e1]][cluster[e2]]; */
-    /*             } */
-    /*         } */
-    /*         auto tsp_cicle = tspCircle(sub_dists); */
-    /*         std::vector<int> orderd_cluster(cluster.size()); */
-    /*         for(int i = 0; i < cluster.size(); i++) { */
-    /*             orderd_cluster[i] = cluster[tsp_cicle[i]]; */
-    /*         } */
-    /*         cluster.swap(orderd_cluster); */
-    /*     } */
-    /* } */
-    /* ga.initialize(total_count-1, [&clusters, this](std::vector<int>& a) { */
-    /*     int order[clusters.size()]; */
-    /*     std::iota(order, order + clusters.size(), 0); */
-    /*     std::shuffle(order, order + clusters.size(), generator); */
-    /*     int i = 0; */
-    /*     int current_worker = 0; */
-    /*     for(auto o : order) { */
-    /*         if(current_worker != 0) { */
-    /*             a[i] = current_worker-1; */
-    /*             i++; */
-    /*         } */
-    /*         auto& cluster = clusters[o]; */
-    /*         if(cluster.size() <= 15) { */
-    /*             long min_dist = LONG_MAX; */
-    /*             int min_rot = 0; */
-    /*             for(int j = 0; j < cluster.size(); j++) { */
-    /*                 long dist = (durations[current_worker][cluster[j] + workers.size()] */
-    /*                              + durations[current_worker][cluster[(cluster.size() + j - 1) % cluster.size()] + workers.size()]); */
-    /*                 if(dist < min_dist) { */
-    /*                     min_dist = dist; */
-    /*                     min_rot = j; */
-    /*                 } */
-    /*             } */
-    /*             std::rotate(cluster.begin(), cluster.begin() + min_rot, cluster.end()); */
-    /*         } else { */
-    /*             std::shuffle(cluster.begin(), cluster.end(), generator); */
-    /*         } */
-    /*         for(int j = 0; j < cluster.size(); j++) { */
-    /*             a[i] = cluster[j] + workers.size() - 1; */
-    /*             i++; */
-    /*         } */
-    /*         current_worker++; */
-    /*     } */
-    /* }, 100000); */
+        /* std::vector<std::pair<long, long>> client_cords(clients.size()); */
+        /* for(int i = 0; i < clients.size(); i++) { */
+        /*     client_cords[i] = std::make_pair((long)(clients[i].lat*(1e8)), (long)(clients[i].lon*(1e8))); */
+        /* } */
+        /* auto clusters = kmeansMaxn(workers.size(), std::max<int>(15, 2*clients.size()/workers.size()), client_cords); */
+        /* /1* auto clusters = kmeans(workers.size(), client_cords); *1/ */
+        /* for(auto& cluster : clusters) { */
+        /*     if(cluster.size() <= 15) { */
+        /*         std::vector<std::vector<long>> sub_dists(cluster.size(), std::vector<long>(cluster.size())); */
+        /*         for(int e1 = 0; e1 < cluster.size(); e1++) { */
+        /*             for(int e2 = 0; e2 < cluster.size(); e2++) { */
+        /*                 sub_dists[e1][e2] = durations[cluster[e1]][cluster[e2]]; */
+        /*             } */
+        /*         } */
+        /*         auto tsp_cicle = tspCircle(sub_dists); */
+        /*         std::vector<int> orderd_cluster(cluster.size()); */
+        /*         for(int i = 0; i < cluster.size(); i++) { */
+        /*             orderd_cluster[i] = cluster[tsp_cicle[i]]; */
+        /*         } */
+        /*         cluster.swap(orderd_cluster); */
+        /*     } */
+        /* } */
+        /* ga.initialize(total_count-1, [&clusters, this](std::vector<int>& a) { */
+        /*     int order[clusters.size()]; */
+        /*     std::iota(order, order + clusters.size(), 0); */
+        /*     std::shuffle(order, order + clusters.size(), generator); */
+        /*     int i = 0; */
+        /*     int current_worker = 0; */
+        /*     for(auto o : order) { */
+        /*         if(current_worker != 0) { */
+        /*             a[i] = current_worker-1; */
+        /*             i++; */
+        /*         } */
+        /*         auto& cluster = clusters[o]; */
+        /*         if(cluster.size() <= 15) { */
+        /*             long min_dist = LONG_MAX; */
+        /*             int min_rot = 0; */
+        /*             for(int j = 0; j < cluster.size(); j++) { */
+        /*                 long dist = (durations[current_worker][cluster[j] + workers.size()] */
+        /*                              + durations[current_worker][cluster[(cluster.size() + j - 1) % cluster.size()] + workers.size()]); */
+        /*                 if(dist < min_dist) { */
+        /*                     min_dist = dist; */
+        /*                     min_rot = j; */
+        /*                 } */
+        /*             } */
+        /*             std::rotate(cluster.begin(), cluster.begin() + min_rot, cluster.end()); */
+        /*         } else { */
+        /*             std::shuffle(cluster.begin(), cluster.end(), generator); */
+        /*         } */
+        /*         for(int j = 0; j < cluster.size(); j++) { */
+        /*             a[i] = cluster[j] + workers.size() - 1; */
+        /*             i++; */
+        /*         } */
+        /*         current_worker++; */
+        /*     } */
+        /* }, 100000); */
     ga.initialize(total_count-1, PermutationGeneticAlgorithm::default_init_function, 1000);
     ga.iterate(1);
 }

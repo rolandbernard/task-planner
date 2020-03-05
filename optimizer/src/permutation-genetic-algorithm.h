@@ -55,7 +55,9 @@ public:
             population_a[i].swap(init_population[sorted[i]]);
         }
         this->chromosome_lenght = chromosome_lenght;
-        this->best_solution.resize(chromosome_lenght);
+        best_solution.resize(chromosome_lenght);
+        iota(best_solution.begin(), best_solution.end(), 0);
+        best_result = 0;
         for(auto& chrom : population_b) {
             chrom.resize(chromosome_lenght);
         }

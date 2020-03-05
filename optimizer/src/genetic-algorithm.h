@@ -68,6 +68,7 @@ public:
         for(auto& chrom : population_a) {
             I(chrom);
         }
+        this->best_result = 0;
     }
 
     void iterate(int n = 1) {

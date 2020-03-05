@@ -100,23 +100,6 @@
 /*     return EXIT_SUCCESS; */
 /* } */
 
-std::ostream& operator<<(std::ostream& os, const Worker& w)
-{ 
-    os << "[\"" << w.name << "\", \"" << w.address << "\", " << w.maximum_time << ", " << w.lon << ", " << w.lat << "]";
-    return os; 
-}
-std::ostream& operator<<(std::ostream& os, const Client& c)
-{ 
-    os << "[\"" << c.name << "\", \"" << c.address << "\", " << c.working_time << ", " << c.priority << ", " << c.lon << ", " << c.lat << "]";
-    return os; 
-}
-
-std::ostream& operator<<(std::ostream& os, const PlannedTask& pt)
-{ 
-    os << "[" << pt.worker << ", " << pt.client << ", " << pt.day << ", " << pt.time_of_day << "]";
-    return os; 
-}
-
 int main() {
     TaskPlanner tp;
     tp.setClients({
