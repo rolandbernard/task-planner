@@ -225,7 +225,7 @@ function App() {
                                         <Paper>
                                             <ClickAwayListener onClickAway={handleButtonClose}>
                                                 <MenuList id="split-button-menu">
-                                                    {[500, 5000, 10000, 50000, 100000, 500000].map(r => (
+                                                    {[500, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000].map(r => (
                                                         <MenuItem
                                                             key={r}
                                                             selected={rounds === r}
