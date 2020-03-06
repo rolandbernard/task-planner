@@ -163,10 +163,13 @@ namespace crossover {
         int chromosome_lenght = parent_a.size();
         int eadges[chromosome_lenght][4];
         int counts[chromosome_lenght];
-        bool used[chromosome_lenght];
+        int unused_count = chromosome_lenght;
+        int unused[chromosome_lenght];
+        int unused_pos[chromosome_lenght];
         for(int i = 0; i < chromosome_lenght; i++) {
             counts[i] = 0;
-            used[i] = false;
+            unused[i] = i;
+            unused_pos[i] = i;
         }
         auto add_eadge = [&eadges, &counts](int from, int to) {
             for(int i = 0; i < counts[from]; i++) {
@@ -200,7 +203,9 @@ namespace crossover {
         remove_eadge(current);
         child[0] = current;
         for(int i = 1; i < chromosome_lenght; i++) {
-            used[current] = true;
+            unused_count--;
+            unused[unused_pos[current]] = unused[unused_count];
+            unused_pos[unused[unused_pos[current]]] = unused_pos[current];
             if(counts[current] > 0) {
                 int min = eadges[current][0];
                 for(int j = 1; j < counts[current]; j++) {
@@ -210,10 +215,7 @@ namespace crossover {
                 }
                 current = min;
             } else {
-                current = random() % chromosome_lenght;
-                while(used[current]) {
-                    current = random() % chromosome_lenght;
-                }
+                current = unused[random() % unused_count];
             }
             remove_eadge(current);
             child[i] = current;
