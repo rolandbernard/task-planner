@@ -5,7 +5,7 @@ DEBUGARGS=-Wall -std=c++17 -O0 -g -fsanitize=address,undefined
 WASMARGS=--bind -s MODULARIZE=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_NAME=Optimizer -s ENVIRONMENT=web,worker -s FILESYSTEM=0
 CLEAN=rm -f
 CPPC=emcc
-CPPCTEST=clang++
+CPPCTEST=g++
 SRC=./src
 BUILD=./build
 
