@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
-import { makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select, MenuItem, Popper, Paper, Grow, ButtonGroup, MenuList, ClickAwayListener } from '@material-ui/core';
+import { makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select, MenuItem, Popper, Paper, Grow, ButtonGroup, MenuList, ClickAwayListener, Snackbar } from '@material-ui/core';
+import { Alert } from "@material-ui/lab";
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { wrap } from 'comlink';
 
@@ -100,6 +101,7 @@ function App() {
     const button_anchor_ref = useRef(null);
     const [button_open, setButtonOpen] = useState(false);
     const [rounds, setRounds] = useState(500);
+    const [error, setError] = useState(null);
 
     const handleClientChange = (c) => {
         setClients(c);
@@ -129,6 +131,7 @@ function App() {
                     changed.current = false;
                 }
             } catch(e) {
+                setError("Failed to load optimizer: " + e.message);
                 setTab(0);
             }
             setLoading(false);
@@ -181,8 +184,21 @@ function App() {
         setHighlight(t ? t.client.id : -1);
     }
 
+    const handleErrorSet = (e) => {
+        setError("Operation failed: " + e.message);
+    }
+
+    const handleErrorReset = () => {
+        setError(null);
+    }
+
     return (
         <div className={classes.app}>
+            <Snackbar open={error != null} autoHideDuration={6000} onClose={handleErrorReset}>
+                <Alert onClose={handleErrorReset} severity="error">
+                    { error }
+                </Alert>
+            </Snackbar>
             <AppBar position="static">
                 <Tabs value={tab} onChange={handleTabChange}>
                     <Tab label="Input data" disabled={loading} className={classes.tab}/>
@@ -273,6 +289,7 @@ function App() {
                         <PlanMap
                             plan={filtered_plan_split}
                             onTaskHover={onTaskHover}
+                            onError={handleErrorSet}
                         />
                     </Box>
                 </Box>

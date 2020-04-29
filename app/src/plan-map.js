@@ -57,6 +57,7 @@ const styles = {
 class PlanMap extends React.Component {
     constructor(prop) {
         super(prop);
+        this.onError = prop.onError;
         this.last_route_highlights = [];
         this.last_client_highlights = [];
         this.map_ref = createRef();
@@ -120,35 +121,41 @@ class PlanMap extends React.Component {
 
     async fillVectorSource(plan) {
         this.vector_source.clear();
-        for(let worker in plan) {
-            for(let day in plan[worker]) {
-                if(plan[worker][day].length > 0) {
-                    const worker_coords = [plan[worker][day][0].worker.lon, plan[worker][day][0].worker.lat];
-                    const client_coords = plan[worker][day].map(task => [task.client.lon, task.client.lat]);
-                    const polyline = await getRoutePolyline6([worker_coords, ...client_coords, worker_coords]);
-                    const feature = new Feature({
-                        type: 'route',
-                        geometry: new Polyline({
-                            factor: 1e6
-                        }).readGeometry(polyline, {
-                            dataProjection: 'EPSG:4326',
-                            featureProjection: 'EPSG:3857'
-                        }),
-                    });
-                    this.vector_source.addFeature(feature);
-                    this.vector_source.addFeature(new Feature({
-                        type: 'worker',
-                        geometry: new Point(fromLonLat(worker_coords)),
-                    }));
-                    this.vector_source.addFeatures(plan[worker][day].map((task) => {
-                        return new Feature({
-                            task: task,
-                            route: feature,
-                            type: 'client',
-                            geometry: new Point(fromLonLat([task.client.lon, task.client.lat])),
+        try {
+            for(let worker in plan) {
+                for(let day in plan[worker]) {
+                    if(plan[worker][day].length > 0) {
+                        const worker_coords = [plan[worker][day][0].worker.lon, plan[worker][day][0].worker.lat];
+                        const client_coords = plan[worker][day].map(task => [task.client.lon, task.client.lat]);
+                        const polyline = await getRoutePolyline6([worker_coords, ...client_coords, worker_coords]);
+                        const feature = new Feature({
+                            type: 'route',
+                            geometry: new Polyline({
+                                factor: 1e6
+                            }).readGeometry(polyline, {
+                                dataProjection: 'EPSG:4326',
+                                featureProjection: 'EPSG:3857'
+                            }),
                         });
-                    }));
+                        this.vector_source.addFeature(feature);
+                        this.vector_source.addFeature(new Feature({
+                            type: 'worker',
+                            geometry: new Point(fromLonLat(worker_coords)),
+                        }));
+                        this.vector_source.addFeatures(plan[worker][day].map((task) => {
+                            return new Feature({
+                                task: task,
+                                route: feature,
+                                type: 'client',
+                                geometry: new Point(fromLonLat([task.client.lon, task.client.lat])),
+                            });
+                        }));
+                    }
                 }
+            }
+        } catch(e) {
+            if(this.onError) {
+                this.onError(e);
             }
         }
     }
