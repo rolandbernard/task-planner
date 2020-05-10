@@ -252,7 +252,7 @@ function App() {
                         then switch to the "Optimization"-tab.
                     </p>
                     <p>
-                        The routes that are initialy displayed are probaby not very good, because they have
+                        The routes that are initialy displayed are probably not very good, because they have
                         not yet been optimized.
                     </p>
                     <p>
@@ -267,7 +267,7 @@ function App() {
                         You can run as many optimization passes as you would like.
                     </p>
 
-                    <h6>Copyright (c) 2020 Roland Bernard</h6>
+                    <p>Copyright (c) 2020 Roland Bernard</p>
                 </div>
             </Popover>
             <AppBar position="static">
