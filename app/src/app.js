@@ -244,7 +244,7 @@ function App() {
             >
                 <div className={classes.about_text}>
                     <p>
-                        This Software can be used to try and optimze the routing of multiple
+                        This software can be used to try to optimize the routing of multiple
                         workers, that have to visit multiple clients.
                     </p>
                     <p>
@@ -252,7 +252,7 @@ function App() {
                         then switch to the "Optimization"-tab.
                     </p>
                     <p>
-                        The routes that are initialy displayed are probably not very good, because they have
+                        The routes that are initially displayed are probably not very good, because they have
                         not yet been optimized.
                     </p>
                     <p>
@@ -267,7 +267,8 @@ function App() {
                         You can run as many optimization passes as you would like.
                     </p>
 
-                    <p>Copyright (c) 2020 Roland Bernard</p>
+                    <hr />
+                    <p>Copyright © 2020 Roland Bernard</p>
                 </div>
             </Popover>
             <AppBar position="static">
