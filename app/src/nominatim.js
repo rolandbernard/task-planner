@@ -5,7 +5,7 @@ export async function getCoordinatedForAddress(address) {
     if(address) {
         try {
             const result = await fetch(config.nominatim_api_location + `/search?q=${address}&format=json&limit=1`);
-            if(result.status !== 200) {
+            if(!result.ok) {
                 throw new Error(`Code ${result.status}`);
             } else {
                 const json = await result.json();

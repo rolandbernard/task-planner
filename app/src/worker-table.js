@@ -66,6 +66,14 @@ const styles = {
     span_grey: {
         color: '#757575',
     },
+    info_text: {
+        position: 'absolute',
+        top: 'calc(50% + 1.75rem)',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: '#F0F0F0',
+        fontSize: '5rem',
+    },
 };
 
 class Worker extends React.Component {
@@ -280,6 +288,7 @@ class WorkerTable extends React.Component {
     render() {
         return (
             <div style={styles.root}>
+                <div style={styles.info_text}>Workers</div>
                 <Table style={styles.table}>
                     <TableHead style={styles.table_head}>
                         <TableRow>

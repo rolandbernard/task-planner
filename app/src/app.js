@@ -1,8 +1,13 @@
 
 import React, { useState, useMemo, useRef } from 'react';
-import { makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select, MenuItem, Popper, Paper, Grow, ButtonGroup, MenuList, ClickAwayListener, Snackbar } from '@material-ui/core';
+import {
+    makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select,
+    MenuItem, Popper, Paper, Grow, ButtonGroup, MenuList, ClickAwayListener,
+    Snackbar, IconButton, Popover
+} from '@material-ui/core';
 import { Alert } from "@material-ui/lab";
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import InfoIcon from '@material-ui/icons/Info';
 import { wrap } from 'comlink';
 
 import TabPanel from './tab-panel'
@@ -18,41 +23,42 @@ const useStyles = makeStyles(theme => ({
         height: '100%',
     },
     tab: {
-        maxWidth: '20em',
-        width: '45%',
+        maxWidth: '20rem',
+        width: '50%',
     },
     tab_pannel: {
-        height: 'calc(100% - 3em)',
+        height: 'calc(100% - 3rem)',
     },
     boxes: {
+        outline: '1px solid #F0F0F0',
         boxSizing: 'border-box',
         [theme.breakpoints.down('md')]: {
             width: '100%',
             height: '50%',
-            padding: '0.5em',
+            padding: '0.5rem',
         },
         [theme.breakpoints.up('lg')]: {
             width: '50%',
             height: '100%',
-            padding: '0.5em',
+            padding: '0.5rem',
             display: 'inline-block',
             verticalAlign: 'top',
         }
     },
     map_box: {
         width: '100%',
-        height: 'calc(100% - 3em)',
+        height: 'calc(100% - 3rem)',
         padding: 0,
         boxSizing: 'border-box',
     },
     control_box: {
         width: '100%',
-        height: '3em',
+        height: '3rem',
         padding: 0,
         boxSizing: 'border-box',
     },
     linear_progress: {
-        height: '0.25em',
+        height: '0.25rem',
     },
     button_progress: {
         position: 'absolute',
@@ -66,21 +72,31 @@ const useStyles = makeStyles(theme => ({
         width: 'max-content',
     },
     quality: {
-        paddingLeft: '1em',
+        paddingLeft: '1rem',
     },
     filters: {
         float: 'right',
         width: 'max-content',
-        marginRight: '1em',
+        marginRight: '1rem',
     },
     filter_input: {
-        width: '10em',
+        width: '10rem',
         verticalAlign: 'middle',
-        marginLeft: '1em',
+        marginLeft: '1rem',
     },
     popper: {
+        zIndex: 1000000,
+    },
+    about: {
+        position: 'absolute',
+        top: '0.5rem',
+        right: '0.5rem',
+        color: '#F0F0F0',
         zIndex: 100000,
-    }
+    },
+    about_text: {
+        padding:"1rem",
+    },
 }));
 
 
@@ -102,6 +118,8 @@ function App() {
     const [button_open, setButtonOpen] = useState(false);
     const [rounds, setRounds] = useState(500);
     const [error, setError] = useState(null);
+    const [about_open, setAboutOpen] = useState(false);
+    const [anchorAbout, setAnchorAbout] = useState(null);
 
     const handleClientChange = (c) => {
         setClients(c);
@@ -192,6 +210,15 @@ function App() {
         setError(null);
     }
 
+    const handleOpenAbout = (e) => {
+        setAnchorAbout(e.currentTarget);
+        setAboutOpen(true);
+    }
+
+    const handleCloseAbout = () => {
+        setAboutOpen(false);
+    }
+
     return (
         <div className={classes.app}>
             <Snackbar open={error != null} autoHideDuration={6000} onClose={handleErrorReset}>
@@ -199,6 +226,50 @@ function App() {
                     { error }
                 </Alert>
             </Snackbar>
+            <IconButton className={classes.about} size="small" onClick={handleOpenAbout}>
+                <InfoIcon />
+            </IconButton>
+            <Popover
+                open={about_open}
+                anchorEl={anchorAbout}
+                onClose={handleCloseAbout}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+            >
+                <div className={classes.about_text}>
+                    <p>
+                        This Software can be used to try and optimze the routing of multiple
+                        workers, that have to visit multiple clients.
+                    </p>
+                    <p>
+                        First enter all your workers and clients into the respective table and
+                        then switch to the "Optimization"-tab.
+                    </p>
+                    <p>
+                        The routes that are initialy displayed are probaby not very good, because they have
+                        not yet been optimized.
+                    </p>
+                    <p>
+                        To optimize the routes select how many rounds of optimization you want to
+                        apply and click the optimize button.
+                    </p>
+                    <p>
+                        You will see a loading animation, and when the optimization has finished
+                        the table and map should update.
+                    </p>
+                    <p>
+                        You can run as many optimization passes as you would like.
+                    </p>
+
+                    <h6>Copyright (c) 2020 Roland Bernard</h6>
+                </div>
+            </Popover>
             <AppBar position="static">
                 <Tabs value={tab} onChange={handleTabChange}>
                     <Tab label="Input data" disabled={loading} className={classes.tab}/>

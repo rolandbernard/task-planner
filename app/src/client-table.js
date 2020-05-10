@@ -73,6 +73,14 @@ const styles = {
         marginTop: -28,
         marginLeft: -24,
     },
+    info_text: {
+        position: 'absolute',
+        top: 'calc(50% + 1.75rem)',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: '#F0F0F0',
+        fontSize: '5rem',
+    },
 };
 
 class Client extends React.Component {
@@ -301,6 +309,7 @@ class ClientTable extends React.Component {
     render() {
         return (
             <div style={styles.root}>
+                <div style={styles.info_text}>Clients</div>
                 <Table style={styles.table}>
                     <TableHead style={styles.table_head}>
                         <TableRow>
