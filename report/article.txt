@@ -1,0 +1,73 @@
+
+[foto0]
+
+Titel: Automatische Einsatzplanung
+
+Kurze Einleitung:
+Ziel dieses Projektes war es eine Software zu entwickeln, welche es ermöglicht
+Einsätze automatisch und so effizient wie möglich zu Planen. Zur Umsetzung
+dieses Zieles wurde ein Evolutionärer Algorithmus verwendet. Ein solcher
+Algorithmus lehnt sich an die biologische Evolution an und kann so das Problem
+erfolgreich lösen.
+
+Autor: Roland Bernard
+
+Text:
+Das Problem, welches ich zu lösen versucht habe, ist die Umsetzung einer
+automatischen Einsatzplanung, welche eine Reihe an Einsätzen auf eine Reihe
+an Techniker so effizient wie möglich verteilt. Dabei gilt es die Gesamtmenge
+der Fahrzeiten, welche die Techniker zurücklegen müssen zu minimieren und
+gleichzeitig sowohl die verschiedenen Prioritäten der einzelnen Einsätze, als
+auch die limitierte Arbeitszeit der Techniker zu berücksichtigen. Das Problem
+wurde von der Firma Infominds vorgeschlagen, welche eine derartige Lösung für
+ihre Software mit dem Namen RADIX gut gebrauchen können. Eine Version des
+Algorithmus habe ich dann auch in die RADIX Software eingebunden.
+
+Dieses Problem ähnelt stark bereits bekannten Problemen in der Informatik, wie
+dem Traveling Salesman Problem und dem Vehicle Routing Problem. Wie auch diese
+beiden Probleme ist das Problem der Einsatzplanung nicht effizient lösbar, wenn
+man eine exakte Lösung erhalten möchte. Da wir für die vorliegende Aufgabe aber
+nicht unbedingt immer die beste Lösung finden müssen, sondern nur eine, welche
+relativ gut ist, ist es möglich Heuristiken, also Annäherungen, zu verwenden.
+Das Ziel ist es also eine Heuristik zu finden, mit welcher man diese Planung
+der Einsätze relativ schnell und dennoch relativ nahe am Optimum durchführen
+kann.
+
+Ein Kandidat für eine solche Heuristik ist der Evolutionäre Algorithmus, welcher
+von der biologischen Evolution inspiriert ist. Man beginnt diesen Algorithmus mit
+einer sogenannten Population an möglichen Lösungen, welche Zufällig generiert
+wird. Eine solche Lösung wäre also eine zufällige Abarbeitung der Einsätze. Diese
+Lösungen sind normalerweise noch nicht besonders gut, da sie ja nur Zufällig
+generiert wurden. Der nächste Schritt besteht darin, dass man alle zufälligen
+Lösungen eine bestimmte Qualität zuordnet. Im Fall der Einsatzplanung wäre dies
+dann abhängig von der Fahrzeit und davon, wie lange Einsätze mit hoher Priorität
+warten müssten. Um aus diesen relativ schlechten Lösungen jetzt bessere Lösungen
+zu erstellen, müssen die schlechtesten Lösungen in der Population entfernt
+werden und aus den besten Lösungen neue Lösungen generiert werden, welche etwas
+anders ausfallen, als ihre Vorgänger aber immer noch viele Gemeinsamkeiten
+haben. So könnte man zum Beispiel die Reihenfolge von zwei Einsätzen vertauschen.
+Man generiert nun also eine zweite Population, welche die erst ersetzt und ein
+klein wenig besser ist, da alle schlechten Lösungen entfernt wurden. Wenn man
+den ganzen Vorgang nun sehr viel häufiger durchführt, kommt man immer näher an
+die optimale Lösung.
+
+[foto1]
+
+Dieser Prozess der ständigen Verbesserung, läuft am Anfang schneller ab und wird
+an immer zu langsamer, bis man irgendwann die optimale Lösung gefunden hat. Da dies
+aber eine sehr lange Zeit dauern kann, wird man meist schon vorher abbrechen und
+sich mit einer Lösung zufriedengeben, welche gut genug ist.
+
+Mit diesem Algorithmus ist es möglich das gewünschte Ziel zu erreichen und eine
+automatische Einsatzplanung umzusetzen, welche auch für größere Eingaben in einer
+angemessenen Laufzeit gute Lösungen finden kann.
+
+Wie bereits erwähnt habe ich diesen Algorithmus in die Software RADIX der Firma
+Infominds integriert. Um das ganze aber auch für sich alleine Nutzen zu können
+und um eine bessere Performance zu erreichen habe ich das ganze nochmals als
+Webanwendung implementiert. Sie können diese, wenn sie wünschen
+hier http://rolandbernard.ddns.net/ ausprobieren. Die Berechnungen werden dabei
+alle im Browser und nicht auf dem Server ausgeführt.
+
+
+
