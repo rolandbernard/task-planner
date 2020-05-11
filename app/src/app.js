@@ -266,9 +266,6 @@ function App() {
                     <p>
                         You can run as many optimization passes as you would like.
                     </p>
-
-                    <hr />
-                    <p>Copyright © 2020 Roland Bernard</p>
                 </div>
             </Popover>
             <AppBar position="static">

@@ -24,6 +24,7 @@ const styles = {
     },
     table_cell: {
         padding: 0,
+        background: 'white',
     },
     scrolldiv: {
         overflowY: 'auto',
