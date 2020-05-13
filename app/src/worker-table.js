@@ -166,7 +166,7 @@ class WorkerTable extends React.Component {
             speed_dial_open: false,
             loading: false,
         };
-        this.next_id = 0;
+        this.next_id = 1000;
         this.file_input_ref = createRef();
         this.handleAddWorker = this.handleAddWorker.bind(this);
         this.handleSpeedDialOpen = this.handleSpeedDialOpen.bind(this);
