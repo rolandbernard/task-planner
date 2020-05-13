@@ -17,10 +17,13 @@ Autor: Roland Bernard
 Text:
 Das Problem, welches ich zu lösen versucht habe, ist die Umsetzung einer
 automatischen Einsatzplanung, welche eine Reihe an Einsätzen auf eine Reihe
-an Techniker so effizient wie möglich verteilt. Dabei gilt es die Gesamtmenge
-der Fahrzeiten, welche die Techniker zurücklegen müssen zu minimieren und
+an Techniker so effizient wie möglich verteilt. Die Einsätze sind alle geografisch
+verteilt und besitzen eine bestimmte Priorität. Auch die Techniker haben eine
+bestimmte Adresse, von welcher sie losfahren und zu welcher sie wieder zurückkehren.
+Das Problem ist es die Einsätze so zu verteilen, das die Gesamtmenge
+der Fahrzeiten, welche die Techniker zurücklegen müssen, minimiert wird und
 gleichzeitig sowohl die verschiedenen Prioritäten der einzelnen Einsätze, als
-auch die limitierte Arbeitszeit der Techniker zu berücksichtigen. Das Problem
+auch die limitierten Arbeitszeiten der Techniker berücksichtigt werden. Das Problem
 wurde von der Firma Infominds vorgeschlagen, welche eine derartige Lösung für
 ihre Software mit dem Namen RADIX gut gebrauchen können. Eine Version des
 Algorithmus habe ich dann auch in die RADIX Software eingebunden.
