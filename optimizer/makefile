@@ -20,7 +20,7 @@ $(BUILD)/optimizer.js: $(OBJECTS)
 	cp $(BUILD)/optimizer.wasm ../app/public/
 
 test: $(SOURCE)
-	$(CPPCTEST) $(ARGS) $(SOURCE) -o test
+	$(CPPCTEST) -O3 $(SOURCE) -o test
 
 $(BUILD)/test.o: $(SRC)/test.cpp $(SRC)/util.h $(SRC)/mutation.h $(SRC)/task-planner.h $(SRC)/crossover.h $(SRC)/sample.h
 	$(CPPC) -c -o $(BUILD)/test.o $(ARGS) $(SRC)/test.cpp
