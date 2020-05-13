@@ -161,7 +161,7 @@ class WorkerTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            workers: [],
+            workers: props.initialWorkers || [],
             editable: -1,
             speed_dial_open: false,
             loading: false,

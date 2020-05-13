@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, createRef, useEffect } from 'react';
-import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, TableSortLabel } from '@material-ui/core';
+import { makeStyles, Table, TableHead, TableBody, TableRow, TableCell, TableSortLabel, Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles(({
     root: {
@@ -44,15 +44,8 @@ function toPaddedIntString(num) {
 
 function ClientTable(props) {
     const classes = useStyles();
-    const { plan, highlightClient } = props;
+    const { plan, highlightClient, onTaskHover } = props;
     const [order_by, setOrderBy] = useState([]);
-    const in_view_ref = createRef();
-
-    useEffect(() => {
-        if(in_view_ref.current) {
-            in_view_ref.current.scrollIntoView();
-        }
-    }, [in_view_ref]);
 
     const createSortHandler = property => () => {
         if(!(order_by[0]) || order_by[0].prop !== property) {
@@ -81,6 +74,12 @@ function ClientTable(props) {
             return 0;
         })
     ), [plan, order_by]);
+
+    const onMouseOver = (task) => {
+        if(onTaskHover) {
+            onTaskHover(task);
+        }
+    }
 
     return (
         <div className={classes.root}>
@@ -132,11 +131,22 @@ function ClientTable(props) {
                                 <Table className={classes.table}>
                                     <TableBody>
                                         {sortedPlan.map((planned_task) => (
-                                            <TableRow key={JSON.stringify(planned_task)} ref={planned_task.client.id === highlightClient ? in_view_ref : null} className={planned_task.client.id === highlightClient ? classes.table_row_high : null}>
-                                                <TableCell>{planned_task.worker.name}</TableCell>
-                                                <TableCell>{planned_task.client.name}</TableCell>
+                                            <TableRow key={JSON.stringify(planned_task)} className={planned_task.client.id === highlightClient ? classes.table_row_high : null} onMouseMove={() => onMouseOver(planned_task)} onMouseLeave={() => onMouseOver(null)}>
+                                                <TableCell>
+                                                    <Tooltip title={planned_task.worker.address}>
+                                                        <span>{planned_task.worker.name}</span>
+                                                    </Tooltip>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Tooltip title={planned_task.client.address}>
+                                                        <span>{planned_task.client.name}</span>
+                                                    </Tooltip>
+                                                </TableCell>
                                                 <TableCell>{'Day ' + (planned_task.day+1)}</TableCell>
-                                                <TableCell>{toPaddedIntString(planned_task.time_of_day / 60) + ':' + toPaddedIntString(planned_task.time_of_day % 60)}</TableCell>
+                                                <TableCell>
+                                                    {toPaddedIntString(planned_task.time_of_day / 60) + ':' + toPaddedIntString(planned_task.time_of_day % 60)}&nbsp;-&nbsp; 
+                                                    {toPaddedIntString((planned_task.time_of_day + planned_task.client.working_time) / 60) + ':' + toPaddedIntString((planned_task.time_of_day + planned_task.client.working_time) % 60)}
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

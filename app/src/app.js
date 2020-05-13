@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useRef } from 'react';
 import {
     makeStyles, Tab, Tabs, AppBar, Box, CircularProgress, Button, Select,
@@ -104,8 +105,10 @@ function App() {
     const planner = useMemo(() => wrap(Worker()), []);
     const classes = useStyles();
     const [tab, setTab] = useState(0);
-    const [clients, setClients] = useState([]);
-    const [workers, setWorkers] = useState([]);
+    const [clients, setClients] = useState([
+    ]);
+    const [workers, setWorkers] = useState([
+    ]);
     const [quality, setQuality] = useState(0);
     const [plan, setPlan] = useState([]);
     const [plan_split, setPlanSplit] = useState([]);
@@ -276,10 +279,10 @@ function App() {
             </AppBar>
             <TabPanel className={classes.tab_pannel} value={tab} index={0}>
                 <Box className={classes.boxes}>
-                    <ClientTable onClientChange={handleClientChange}/>
+                    <ClientTable initialClients={clients} onClientChange={handleClientChange}/>
                 </Box>
                 <Box className={classes.boxes}>
-                    <WorkerTable onWorkerChange={handleWorkerChange}/>
+                    <WorkerTable initialWorkers={workers} onWorkerChange={handleWorkerChange}/>
                 </Box>
             </TabPanel>
             <TabPanel className={classes.tab_pannel} value={tab} index={1}>
@@ -359,6 +362,7 @@ function App() {
                             plan={filtered_plan_split}
                             onTaskHover={onTaskHover}
                             onError={handleErrorSet}
+                            highlightClient={highlight}
                         />
                     </Box>
                 </Box>
@@ -366,6 +370,7 @@ function App() {
                     <PlanTable
                         plan={filtered_plan}
                         highlightClient={highlight}
+                        onTaskHover={onTaskHover}
                     />
                 </Box>
             </TabPanel>

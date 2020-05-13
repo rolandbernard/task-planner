@@ -180,7 +180,7 @@ class ClientTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            clients: [],
+            clients: props.initialClients || [],
             editable: -1,
             speed_dial_open: false,
             loading: false,
