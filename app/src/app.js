@@ -104,8 +104,45 @@ function App() {
     const planner = useMemo(() => wrap(Worker()), []);
     const classes = useStyles();
     const [tab, setTab] = useState(0);
-    const [clients, setClients] = useState([]);
-    const [workers, setWorkers] = useState([]);
+    const [clients, setClients] = useState([
+        { id: 0, name: "402643", address: "Via Sabbionara 1, 36071 ARZIGNANO", working_time: 180, priority: 0.2, lon: 11.3697115, lat: 45.5117757},
+        { id: 1, name: "402635", address: "Via Crispi 15, 39100 BOLZANO", working_time: 60, priority: 0.2, lon: 11.3583474, lat: 46.49805},
+        { id: 2, name: "402628", address: "Säbenertorgasse 2, 39042 BRIXEN", working_time: 120, priority: 0.2, lon: 11.6568621, lat: 46.7158647},
+        { id: 3, name: "402624", address: "Freiheitsstrasse 40, 39042 MERAN", working_time: 150, priority: 0.2, lon: 11.1638196, lat: 46.6705174},
+        { id: 4, name: "402622", address: "Via Santa Croce, 77 , 38123 TRENTO", working_time: 90, priority: 0.2, lon: 11.1240829185249, lat: 46.06266515},
+        { id: 5, name: "402614", address: "Galileo-Galilei-Str. 2 , 39100 BOZEN", working_time: 30, priority: 0.2, lon: 11.3413219, lat: 46.4873981},
+        { id: 6, name: "402605", address: "Via Stazione 28 , 39010 GARGAZZONE", working_time: 120, priority: 0.2, lon: 11.1986062, lat: 46.5787909},
+        { id: 7, name: "402586", address: "Via Crispi 15, 39100 BOLZANO", working_time: 60, priority: 0.2, lon: 11.3583474, lat: 46.49805},
+        { id: 8, name: "402584", address: "Fabrikstraße 7, 39045 FRANZENSFESTE", working_time: 30, priority: 0.2, lon: 11.5658908, lat: 46.8098363},
+        { id: 9, name: "402566", address: "Elvaser Straße 8 , 39042 BRIXEN", working_time: 90, priority: 0.2, lon: 11.6593449, lat: 46.71834},
+        { id: 10, name: "402557", address: "Rienzfeldstraße 30 , 39031 BRUNECK", working_time: 120, priority: 0.2, lon: 11.9281335, lat: 46.8020609},
+        { id: 11, name: "402556", address: "Obertal 45 , 39030 ANTHOLZ", working_time: 60, priority: 0.5, lon: 12.1275168, lat: 46.8736719},
+        { id: 12, name: "402555", address: "Via Gilm 1/A , 39100 BOLZANO", working_time: 60, priority: 0.2, lon: 11.3499216, lat: 46.4957955},
+        { id: 13, name: "402552", address: "Via Durone, 53 , 38079 TIONE DI TRENTO", working_time: 1080, priority: 0.2, lon: 10.730921871875, lat: 46.03736955},
+        { id: 14, name: "402551", address: "piazza Municipio 1, 39040 SALORNO", working_time: 120, priority: 0.2, lon: 11.212524, lat: 46.2390728},
+        { id: 15, name: "402542", address: "Via Santa Croce, 77 , 38123 TRENTO", working_time: 120, priority: 0.2, lon: 11.1240829185249, lat: 46.06266515},
+        { id: 16, name: "402533", address: "Siemensstraße 4/C, 39100 BOZEN", working_time: 150, priority: 0.2, lon: 11.3324146, lat: 46.4828521},
+        { id: 17, name: "402517", address: "Gasteig, Innerrust 2 , 39040 RATSCHINGS", working_time: 30, priority: 0.2, lon: 11.4037304, lat: 46.8802862},
+        { id: 18, name: "402503", address: "Via Siemens 29 , 39100 BOLZANO", working_time: 30, priority: 0.2, lon: 11.3271168612225, lat: 46.4807944},
+        { id: 19, name: "402493", address: "Via Siemens 29 , 39100 BOLZANO", working_time: 30, priority: 0.2, lon: 11.3271168612225, lat: 46.4807944},
+        { id: 20, name: "402486", address: "Via Galvani 6/c, 39100 BOLZANO", working_time: 30, priority: 0.2, lon: 11.3320781, lat: 46.4750087},
+        { id: 21, name: "402485", address: "Via Siemens 29 , 39100 BOLZANO", working_time: 60, priority: 0.5, lon: 11.3271168612225, lat: 46.4807944},
+        { id: 22, name: "402474", address: "Mitterweg 14/B , 39100 BOZEN", working_time: 60, priority: 0.2, lon: 11.5678423, lat: 46.6083621},
+        { id: 23, name: "402473", address: "Negrellistr. 16 , 39100 BOZEN", working_time: 30, priority: 0.5, lon: 11.3547801, lat: 46.4981125},
+        { id: 24, name: "402472", address: "Via Crispi 15, 39100 BOLZANO", working_time: 60, priority: 0.2, lon: 11.3583474, lat: 46.49805},
+        { id: 25, name: "402471", address: "Pacinottistrasse 12 , 39100 BOZEN", working_time: 30, priority: 0.2, lon: 11.3303934, lat: 46.4820846},
+        { id: 26, name: "402468", address: "Via Crispi 15, 39100 BOLZANO", working_time: 60, priority: 0.2, lon: 11.3583474, lat: 46.49805},
+        { id: 27, name: "402465", address: "Via Crispi 15, 39100 BOLZANO", working_time: 210, priority: 0.2, lon: 11.3583474, lat: 46.49805},
+        { id: 28, name: "402456", address: "Via Crispi 15, 39100 BOLZANO", working_time: 60, priority: 0.2, lon: 11.3583474, lat: 46.49805},
+        { id: 29, name: "402455", address: "Kapuzinergasse 10, 39100 BOZEN", working_time: 60, priority: 0.2, lon: 11.3522297, lat: 46.4964121},
+    ]);
+    const [workers, setWorkers] = useState([
+        { id: 0, name: "PETERH", address: "Brennerstraße 72, 39042 Brixen", maximum_time: 480, lon: 11.6525118, lat: 46.7283475},
+        { id: 1, name: "MARTINH", address: "Luigi-Negrelli-Straße 6, 39100 Bozen", maximum_time: 480, lon: 11.3323606, lat: 46.4708107},
+        { id: 2, name: "LUKASP", address: "Luigi-Negrelli-Straße 6, 39100 Bozen", maximum_time: 480, lon: 11.3323606, lat: 46.4708107},
+        { id: 3, name: "CHRISTIANV", address: "Luigi-Negrelli-Straße 6, 39100 Bozen", maximum_time: 480, lon: 11.3323606, lat: 46.4708107},
+        { id: 4, name: "EDDYP", address: "Luigi-Negrelli-Straße 6, 39100 Bozen", maximum_time: 480, lon: 11.3323606, lat: 46.4708107},
+    ]);
     const [quality, setQuality] = useState(0);
     const [plan, setPlan] = useState([]);
     const [plan_split, setPlanSplit] = useState([]);
@@ -276,10 +313,10 @@ function App() {
             </AppBar>
             <TabPanel className={classes.tab_pannel} value={tab} index={0}>
                 <Box className={classes.boxes}>
-                    <ClientTable onClientChange={handleClientChange}/>
+                    <ClientTable initialClients={clients} onClientChange={handleClientChange}/>
                 </Box>
                 <Box className={classes.boxes}>
-                    <WorkerTable onWorkerChange={handleWorkerChange}/>
+                    <WorkerTable initialWorkers={workers} onWorkerChange={handleWorkerChange}/>
                 </Box>
             </TabPanel>
             <TabPanel className={classes.tab_pannel} value={tab} index={1}>
@@ -359,6 +396,7 @@ function App() {
                             plan={filtered_plan_split}
                             onTaskHover={onTaskHover}
                             onError={handleErrorSet}
+                            highlightClient={highlight}
                         />
                     </Box>
                 </Box>
@@ -366,6 +404,7 @@ function App() {
                     <PlanTable
                         plan={filtered_plan}
                         highlightClient={highlight}
+                        onTaskHover={onTaskHover}
                     />
                 </Box>
             </TabPanel>

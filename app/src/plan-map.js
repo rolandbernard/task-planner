@@ -88,17 +88,11 @@ class PlanMap extends React.Component {
                 feature.set('type', 'route');
             });
             this.last_route_highlights = [];
-            this.last_client_highlights.forEach((feature) => {
-                feature.set('type', 'client');
-            });
-            this.last_client_highlights = [];
             const hover_feature = this.map.getFeaturesAtPixel(event.pixel).find((feature) => feature.get('type').substr(0, 6) === 'client');
             if(hover_feature) {
                 const hover_route_feature = hover_feature.get('route');
                 hover_route_feature.set('type', 'routeHighlight');
                 this.last_route_highlights = [hover_route_feature];
-                hover_feature.set('type', 'clientHighlight');
-                this.last_client_highlights = [hover_feature]
                 if(this.props.onTaskHover) {
                     this.props.onTaskHover(hover_feature.get('task'));
                 }
@@ -127,17 +121,20 @@ class PlanMap extends React.Component {
                     if(plan[worker][day].length > 0) {
                         const worker_coords = [plan[worker][day][0].worker.lon, plan[worker][day][0].worker.lat];
                         const client_coords = plan[worker][day].map(task => [task.client.lon, task.client.lat]);
-                        const polyline = await getRoutePolyline6([worker_coords, ...client_coords, worker_coords]);
-                        const feature = new Feature({
-                            type: 'route',
-                            geometry: new Polyline({
-                                factor: 1e6
-                            }).readGeometry(polyline, {
-                                dataProjection: 'EPSG:4326',
-                                featureProjection: 'EPSG:3857'
-                            }),
-                        });
-                        this.vector_source.addFeature(feature);
+                        let feature;
+                        try {
+                            const polyline = await getRoutePolyline6([worker_coords, ...client_coords, worker_coords]);
+                            feature = new Feature({
+                                type: 'route',
+                                geometry: new Polyline({
+                                    factor: 1e6
+                                }).readGeometry(polyline, {
+                                    dataProjection: 'EPSG:4326',
+                                    featureProjection: 'EPSG:3857'
+                                }),
+                            });
+                            this.vector_source.addFeature(feature);
+                        } catch (e) { }
                         this.vector_source.addFeature(new Feature({
                             type: 'worker',
                             geometry: new Point(fromLonLat(worker_coords)),
@@ -162,6 +159,19 @@ class PlanMap extends React.Component {
 
     componentDidUpdate(prevProps) {
         this.map.updateSize();
+        if(this.props.highlightClient != prevProps.highlightClient) {
+            this.last_client_highlights.forEach((feature) => {
+                feature.set('type', 'client');
+            });
+            this.last_client_highlights = [];
+        }
+        if(this.props.highlightClient !== null && this.props.highlightClient !== -1) {
+            const feature = this.vector_source.getFeatures().find((feature) => feature.get('type') === 'client' && feature.get('task').client.id === this.props.highlightClient);
+            if(feature) {
+                this.last_client_highlights = [ feature ];
+                feature.set('type', 'clientHighlight');
+            }
+        }
         if (prevProps.plan !== this.props.plan) {
             this.fillVectorSource(this.props.plan);
         }
