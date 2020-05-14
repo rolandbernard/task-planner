@@ -100,15 +100,23 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+let initialClients = [];
+let initialWorkers = [];
+
+if(localStorage.getItem('last_input_clients')) {
+    initialClients = JSON.parse(localStorage.getItem('last_input_clients'));
+}
+
+if(localStorage.getItem('last_input_workers')) {
+    initialWorkers = JSON.parse(localStorage.getItem('last_input_workers'));
+}
 
 function App() {
     const planner = useMemo(() => wrap(Worker()), []);
     const classes = useStyles();
     const [tab, setTab] = useState(0);
-    const [clients, setClients] = useState([
-    ]);
-    const [workers, setWorkers] = useState([
-    ]);
+    const [clients, setClients] = useState(initialClients);
+    const [workers, setWorkers] = useState(initialWorkers);
     const [quality, setQuality] = useState(0);
     const [plan, setPlan] = useState([]);
     const [plan_split, setPlanSplit] = useState([]);
@@ -127,11 +135,13 @@ function App() {
     const handleClientChange = (c) => {
         setClients(c);
         changed.current = true;
+        localStorage.setItem('last_input_clients', JSON.stringify(c));
     };
 
     const handleWorkerChange = (w) => {
         setWorkers(w);
         changed.current = true;
+        localStorage.setItem('last_input_workers', JSON.stringify(w));
     };
 
     const handleTabChange = async (__, new_tab) => {
@@ -139,6 +149,8 @@ function App() {
         if(new_tab === 1) {
             setLoading(true);
             try {
+                localStorage.setItem('last_input_clients', JSON.stringify(clients));
+                localStorage.setItem('last_input_workers', JSON.stringify(workers));
                 if(changed.current) {
                     setQuality(0);
                     setPlan([]);

@@ -101,7 +101,7 @@ function ClientTable(props) {
                                 direction={order_by[0] && order_by[0].prop === 'client_name' ? order_by[0].order : 'asc'}
                                 onClick={createSortHandler('client_name')}
                             >
-                                Client
+                                Task
                             </TableSortLabel>
                         </TableCell>
                         <TableCell>
