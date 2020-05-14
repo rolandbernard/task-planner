@@ -185,7 +185,7 @@ class ClientTable extends React.Component {
             speed_dial_open: false,
             loading: false,
         };
-        this.next_id = 1000;
+        this.next_id = props.initialClients.reduce((a, c) => Math.max(a, c.id), 0) + 1;
         this.file_input_ref = createRef();
         this.handleAddClient = this.handleAddClient.bind(this);
         this.handleSpeedDialOpen = this.handleSpeedDialOpen.bind(this);
@@ -310,7 +310,7 @@ class ClientTable extends React.Component {
     render() {
         return (
             <div style={styles.root}>
-                <div style={styles.info_text}>Clients</div>
+                <div style={styles.info_text}>Tasks</div>
                 <Table style={styles.table}>
                     <TableHead style={styles.table_head}>
                         <TableRow>
@@ -332,7 +332,7 @@ class ClientTable extends React.Component {
                                 >
                                     <SpeedDialAction
                                         icon={(<AddIcon/>)}
-                                        tooltipTitle="Add a client"
+                                        tooltipTitle="Add a task"
                                         onClick={this.handleAddClient}
                                     />
                                     <SpeedDialAction
@@ -347,7 +347,7 @@ class ClientTable extends React.Component {
                                     />
                                     <SpeedDialAction
                                         icon={(<DeleteIcon/>)}
-                                        tooltipTitle="Delete all clients"
+                                        tooltipTitle="Delete all tasks"
                                         onClick={this.handleDeleteAll}
                                     />
                                 </SpeedDial>
